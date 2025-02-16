@@ -21,7 +21,7 @@
         - [ ] Delete 
         - [ ] Add
         - [ ] Edit
-    - [ ] Filters
+- [ ] Filters
 - [ ] Authentication & Authorization
 - [ ] Bounty Target & Monthly Earn Track
 - [ ] Total Earn show in Dashboard with Chart
