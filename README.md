@@ -33,6 +33,6 @@ The dashboard displays total earnings with a chart for easy visualization.
 
 
 ## Project Timeline
-Started: 16 Feb, 2025
-Deadline: 21 Feb, 2025
-Daily Expected time: 60 mins
+- Started: 16 Feb, 2025
+- Deadline: 21 Feb, 2025
+- Daily Expected time: 60 mins
