@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}
+    Reports | Bounty Track
+{% endblock title %}
+
+{% block pagename %}
+    Reports
+{% endblock pagename %}
+
+{% block RightHeaderContent %}
+<div class="float-sm-right">
+    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add-report"> New Report </button>
+</div>
+
+<!-- Modal content-->
+<div class="modal fade" id="add-report" tabindex="-1" aria-labelledby="add-report-modal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Add Report</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form method="POST" action="#">{% csrf_token %}
+                <div class="mb-3">
+                  <label for="device.name" class="form-label">Company name</label>
+                  <input type="text" class="form-control" name="name" required>
+                </div>
+                <div class="mb-3">
+                  <label for="device.location" class="form-label">Company Address</label>
+                  <input type="text" class="form-control" name="location">
+                </div>
+                <button type="submit" class="btn btn-success">Save</button>
+            </form>
+        </div>
+      </div>
+    </div>
+</div>
+{% endblock RightHeaderContent %}
+
+{% block content %}
+<div class="col-12">
+    <div class="card">
+        <div class="card-body">
+            <form class="form-inline" method="GET"  >
+                <div class="form-group mr-1 mb-2">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                        </div>
+                        <input type="text" class="form-control float-right" id="date" name="date" placeholder="Select Date" value="{{ selected_date | date:'Y-m-d'}}">
+                    </div>
+                </div>
+                <div class="form-group mr-1 mb-2">
+                    <select class="form-control" name="severity">
+                        <option value="">-- Select Severity --</option>
+                        {% for key, value in severities %}
+                            <option value="{{ key }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group mr-1 mb-2">
+                    <select class="form-control" name="status">
+                        <option value="">-- Select Status --</option>
+                        {% for key, value in statuses %}
+                            <option value="{{ key }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group mr-1 mb-2">
+                    <select class="form-control" name="program]">
+                        <option value="">-- Select Program --</option>
+                        {% for program in programs %}
+                            <option value="{{ program.id }}">{{ program.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group mr-1 mb-2">
+                    <select class="form-control" name="platform">
+                        <option value="">-- Select Platform --</option>
+                        {% for platform in platforms %}
+                            <option value="{{ platform.id }}">{{ platform.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn mb-2">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive"> <!-- Makes table scrollable on small screens -->
+                <table class="table table-bordered text-nowrap">
+                    <thead class="table-dark text-center"> <!-- Dark header for better visibility -->
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Vuln.</th>
+                            <th>Program</th>
+                            <th>Platform</th>
+                            <th>Severity</th>
+                            <th>Status</th>
+                            <th>Reward</th>
+                            <th>Submission</th>
+                            <th>Update</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        {% if reports %}
+                            {% for report in reports %}                    
+                            <tr>
+                                <td>{{ report.id }}</td>
+                                <td>{{ report.title|truncatechars_html:7 }}</td>
+                                <td>{{ report.vulnerability|capfirst }}</td>
+                                <td>{{ report.program|capfirst }}</td>
+                                <td>{{ report.program.platform|capfirst }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if report.severity == 'Medium' %}badge-info
+                                        {% elif report.severity == 'High' %}badge-warning
+                                        {% elif report.severity == 'Critical' %}badge-danger
+                                        {% else %}badge-success
+                                        {% endif %}">
+                                        {{ report.severity|capfirst }}
+                                    </span>
+                                </td>
+                                <td>    
+                                    <span class="badge 
+                                        {% if report.status == 'Rewarded' %}badge-success
+                                        {% elif report.status == 'Triaged' %}badge-warning
+                                        {% elif report.status == 'Duplicate' %}badge-info
+                                        {% elif report.status == 'Closed' %}badge-danger
+                                        {% else %}badge-primary
+                                        {% endif %}">
+                                        {{ report.status|capfirst }}
+                                    </span>
+                                </td>
+                                <td>{{ report.reward }}</td>
+                                <td>{{ report.created_at|date:"d/m/Y - h:i A" }}</td>
+                                <td>{{ report.updated_at|date:"d/m/Y" }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td class="text-center" colspan="9">
+                                <h5><i class="fa fa-hdd"></i> No Report!..</h5>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>    
+        </div>
+        <!-- Pagination -->
+        <div class="card-footer clearfix">
+            <ul class="pagination pagination-sm m-0 float-right">
+                {% if reports.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page=1">&laquo;</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ reports.previous_page_number }}">Previous</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">&laquo;</a></li>
+                <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                {% endif %}
+
+                <li class="page-item"><a class="page-link" href="#">Page {{ reports.number }} of {{reports.paginator.num_pages }}</a></li>
+
+                {% if reports.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ reports.next_page_number }}">Next</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ reports.paginator.num_pages }}">&raquo;</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+                <li class="page-item disabled"><a class="page-link" href="#">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock content %}

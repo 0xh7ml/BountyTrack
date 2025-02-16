@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %} Dashboard | Bounty Track {% endblock title %}
+
+{% block pagename %} Dashboard {% endblock pagename %}
+
+{% block content %}
+<div class="col-lg-3 col-6">
+    <div class="small-box bg-info">
+        <div class="inner">
+            <p class="font-weight-bold">New Reports</p>
+            {% if new_reports %}
+                <h3>{{ new_reports }}</h3>
+            {% else %}
+                <h3>0</h3>
+            {% endif %}
+        </div>
+        <div class="icon">
+            <i class="fa fa-folder-open"></i>
+        </div>
+    </div>
+</div>
+<div class="col-lg-3 col-6">
+    <div class="small-box bg-orange">
+        <div class="inner">
+            <p class="font-weight-bold">Triaged Reports</p>
+            {% if triaged_reports %}
+                <h3>{{ triaged_reports }}</h3>
+            {% else %}
+                <h3>0</h3>
+            {% endif %}
+        </div>
+        <div class="icon">
+            <i class="fa fa-arrow-right-from-bracket"></i>
+        </div>
+    </div>
+</div>
+<div class="col-lg-3 col-6">
+    <div class="small-box bg-teal">
+        <div class="inner">
+            <p class="font-weight-bold">Rewarded Reports</p>
+            {% if rewarded_reports %}
+                <h3>{{ rewarded_reports }}</h3>
+            {% else %}
+                <h3>0</h3>
+            {% endif %}
+        </div>
+        <div class="icon">
+            <i class="fa fa-check"></i>
+        </div>
+    </div>
+</div>
+<div class="col-lg-3 col-6">
+    <div class="small-box bg-success">
+        <div class="inner">
+            <p class="font-weight-bold">Total Earned</p>
+            {% if total_earned %}
+                <h3>{{ total_earned }}</h3>
+            {% else %}
+                <h3>$0</h3>
+            {% endif %}
+        </div>
+        <div class="icon">
+            <i class="fa fa-dollar-sign"></i>
+        </div>
+    </div>
+</div>
+{% endblock content %}
