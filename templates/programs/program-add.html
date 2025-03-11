@@ -1,0 +1,32 @@
+<!-- Modal content-->
+<div class="modal fade" id="add-program" tabindex="-1" aria-labelledby="add-program-modal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Add Program</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form method="POST" action="{% url "program-create" %} ">{% csrf_token %}
+                <div class="mb-3">
+                  <label for="program.name" class="form-label">Program name</label>
+                  <input type="text" class="form-control" name="name" placeholder="Enter Program name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="program.platform" class="form-label">Platform name</label>
+                    <select class="form-control" name="platform" required>
+                        <option value="" selected>-- Select Platform --</option>
+                        {% for platform in platforms %}
+                            <option value="{{ platform.id }}">
+                                {{ platform.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-success">Save</button>
+            </form>
+        </div>
+      </div>
+    </div>
+</div>

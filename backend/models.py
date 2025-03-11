@@ -1,6 +1,7 @@
 from djmoney.models.fields import MoneyField
 from django.db import models
-
+from djmoney.money import Money
+from decimal import Decimal
 # Create your models here.
 
 
@@ -51,7 +52,7 @@ class Report(models.Model):
     program = models.ForeignKey('Program', on_delete=models.CASCADE)
     severity = models.CharField(max_length=10, choices=SEVERITY_CHOICES)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='New')
-    reward = MoneyField(max_digits=14, decimal_places=2, default_currency='USD',default=0)
+    reward = MoneyField(max_digits=14, decimal_places=2, default_currency='USD', default=0)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
