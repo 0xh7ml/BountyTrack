@@ -1,0 +1,60 @@
+<!-- Modal content-->
+<div class="modal fade" id="edit-report-{{ report.id }}" tabindex="-1" aria-labelledby="edit-report-modal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Add Report</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form method="POST" action="{% url "report-edit" report.id %}">{% csrf_token %}
+                <div class="mb-3">
+                    <label for="title" class="form-label">Report Title</label>
+                    <input type="text" class="form-control" name="title" id="title" value="{{ report.title }}" required>
+                </div>
+            
+                <div class="mb-3">
+                    <label for="vulnerability" class="form-label">Vulnerability</label>
+                    <input type="text" class="form-control" name="vulnerability" id="vulnerability" value="{{ report.vulnerability }}" required>
+                </div>
+            
+                <div class="mb-3">
+                    <label for="program" class="form-label">Program</label>
+                    <select class="form-select" name="program" id="program" required>
+                        {% for program in programs %}
+                            <option value="{{ program.id }}">{{ program.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            
+                <div class="mb-3">
+                    <label for="severity" class="form-label">Severity</label>
+                    <select class="form-select" name="severity" id="severity">
+                        <option value="Low" {% if report.severity == "Low" %}selected{% endif %}>Low</option>
+                        <option value="Medium" {% if report.severity == "Medium" %}selected{% endif %}>Medium</option>
+                        <option value="High" {% if report.severity == "High" %}selected{% endif %}>High</option>
+                        <option value="Critical" {% if report.severity == "Critical" %}selected{% endif %}>Critical</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" name="status" id="status">
+                        <option value="New" {% if report.status == "New" %}selected{% endif %}>New</option>
+                        <option value="Triaged" {% if report.status == "Triaged" %}selected{% endif %}>Triaged</option>
+                        <option value="Rewarded" {% if report.status == "Rewarded" %}selected{% endif %}>Rewarded</option>
+                        <option value="Duplicate" {% if report.status == "Duplicate" %}selected{% endif %}>Duplicate</option>
+                        <option value="Closed" {% if report.status == "Closed" %}selected{% endif %}>Closed</option>
+                    </select>
+                </div>
+            
+                <div class="mb-3">
+                    <label for="reward" class="form-label">Reward</label>
+                    <input type="number" class="form-control" name="reward" id="reward" value="{{ report.reward.amount }}" step="1" min="0">
+                </div>
+                <button type="submit" class="btn btn-success">Save</button>
+            </form>
+        </div>
+      </div>
+    </div>
+</div>

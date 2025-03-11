@@ -2,7 +2,13 @@
 
 {% block title %} Dashboard | Bounty Track {% endblock title %}
 
-{% block pagename %} Dashboard {% endblock pagename %}
+{% block pagename %} 
+    {%if user.is_authenticated%}
+        Welcome, {{ user.username|capfirst }}
+    {%else%}
+        Welcome, Guest
+    {%endif%}
+{% endblock pagename %}
 
 {% block content %}
 <div class="col-lg-3 col-6">
@@ -32,6 +38,21 @@
         </div>
         <div class="icon">
             <i class="fa fa-arrow-right-from-bracket"></i>
+        </div>
+    </div>
+</div>
+<div class="col-lg-3 col-6">
+    <div class="small-box bg-danger">
+        <div class="inner">
+            <p class="font-weight-bold">Rejected Reports</p>
+            {% if rejected_reports %}
+                <h3>{{ rejected_reports }}</h3>
+            {% else %}
+                <h3>0</h3>
+            {% endif %}
+        </div>
+        <div class="icon">
+            <i class="fa fa-cancel"></i>
         </div>
     </div>
 </div>

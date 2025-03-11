@@ -1,9 +1,11 @@
 
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token }}">
   <title>{% block title %}{% endblock title %} </title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -11,6 +13,9 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <!-- AdminLTE CSS -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/css/adminlte.min.css" rel="stylesheet">
+  <!-- Date Range Picker -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
 </head>
 <body class="hold-transition sidebar-mini">
   <div class="wrapper">
@@ -26,7 +31,7 @@
         <ul class="navbar-nav ml-auto mb-2">
             <!-- User avatar and name -->
             <li class="nav-item dropdown">
-                <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
+                <a class="nav-link" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                     <div class="user-panel mr-2 d-flex">
                         <div class="image">
                             <img src="https://www.gravatar.com/avatar/64e1b8d34f425d19e1ee2ea7236d3028?s=80&d=retro" class="img-circle" alt="User Image">
@@ -37,8 +42,8 @@
                     <div class="dropdown-item d-flex p-2">
                         <img src="https://www.gravatar.com/avatar/64e1b8d34f425d19e1ee2ea7236d3028?s=80&d=retro" class="img-circle" alt="User Image" width="36px" height="100%">
                         <div class="ml-2">
-                            <div class="text-sm font-medium">Admin</div>
-                            <div class="text-xs">admin@admin.com</div>
+                            <div class="text-sm font-medium">{{ request.user.username }} </div>
+                            <div class="text-xs">{{ request.user.email }} </div>
                         </div>
                     </div>
                     <div class="dropdown-divider"></div>
@@ -46,7 +51,7 @@
                         <i class="fas fa-user mr-2"></i> Profile
                     </a>
                     <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item">
+                    <a href="{% url "logout" %}" class="dropdown-item">
                         <i class="fas fa-sign-out-alt mr-2"></i> Logout
                     </a>
                 </div>
@@ -65,7 +70,7 @@
       <div class="sidebar">
         <!-- Sidebar Menu -->
         <nav class="mt-5  ">
-            {% include "sidebar.html" %}
+            {% include "misc/sidebar.html" %}
         </nav>
         <!-- /.sidebar-menu -->
       </div>
@@ -116,16 +121,22 @@
     <!-- /.control-sidebar -->
 
     <!-- Main Footer -->
-     {% include "footer.html" %}
+     {% include "misc/footer.html" %}
   </div>
   <!-- ./wrapper -->
 
   <!-- jQuery -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <!-- Bootstrap 5 -->
-  <script src="https://adminlte.io/themes/v3/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
   <!-- AdminLTE App -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/js/adminlte.min.js"></script>
-
+  <!-- Date Range Picker -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <!-- Axios -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <!-- Custom JS -->
+  <script src="{% static 'js/custom.js' %}"></script>
 </body>
 </html>

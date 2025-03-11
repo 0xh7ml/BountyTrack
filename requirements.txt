@@ -8,3 +8,4 @@ py-moneyed==3.0
 setuptools==75.8.0
 sqlparse==0.5.3
 typing_extensions==4.12.2
+mysqlclient==2.1.0

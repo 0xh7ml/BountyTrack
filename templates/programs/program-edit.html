@@ -1,0 +1,33 @@
+<!-- Modal content-->
+<div class="modal fade" id="edit-program-{{ program.id }}" tabindex="-1" aria-labelledby="add-program-modal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Edit program</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form method="POST" action="{% url "program-edit" program.id %} ">{% csrf_token %}
+                <div class="mb-3">
+                  <label for="program.name" class="form-label">Program name</label>
+                  <input type="text" class="form-control" name="name" value="{{ program.name }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="program.platform" class="form-label">Platform name</label>
+                    <select class="form-control" name="platform" required>
+                        <option value="">-- Select Platform --</option>
+                        {% for platform in platforms %}
+                            <option value="{{ platform.id }}" 
+                                {% if platform.id == program.platform.id %}selected{% endif %}>
+                                {{ platform.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-success">Save</button>
+            </form>
+        </div>
+      </div>
+    </div>
+</div>

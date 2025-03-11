@@ -1,0 +1,20 @@
+<!-- Modal content-->
+<div class="modal fade" id="edit-platform-{{ platform.id }}" tabindex="-1" aria-labelledby="edit-platform-modal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Edit Platform</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form method="POST" action="{% url "platform-edit" platform.id %} ">{% csrf_token %}
+                <div class="mb-3">
+                  <label for="device.name" class="form-label">Platform name</label>
+                  <input type="text" class="form-control" name="name" value={{ platform.name }} required>
+                </div>
+                <button type="submit" class="btn btn-success">Save</button>
+            </form>
+        </div>
+      </div>
+    </div>
+</div>

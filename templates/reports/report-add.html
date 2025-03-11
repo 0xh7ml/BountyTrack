@@ -1,0 +1,63 @@
+<!-- Modal content-->
+<div class="modal fade" id="add-report" tabindex="-1" aria-labelledby="add-report-modal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Add Report</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form method="POST" action="{% url "report-create" %}">{% csrf_token %}
+                <div class="mb-3">
+                    <label for="title" class="form-label">Report Title</label>
+                    <input type="text" class="form-control" name="title" id="title" placeholder="Enter report title" required>
+                </div>
+            
+                <div class="mb-3">
+                    <label for="vulnerability" class="form-label">Vulnerability</label>
+                    <input type="text" class="form-control" name="vulnerability" id="vulnerability" placeholder="Enter vulnerability" required>
+                </div>
+            
+                <div class="mb-3">
+                    <label for="program" class="form-label">Program</label>
+                    <select class="form-select" name="program" id="program" required>
+                        <option value="" selected>Select Program</option>
+                        {% for program in programs %}
+                            <option value="{{ program.id }}">{{ program.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            
+                <div class="mb-3">
+                    <label for="severity" class="form-label">Severity</label>
+                    <select class="form-select" name="severity" id="severity" required>
+                        <option value="" selected>Select Severity</option>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                        <option value="Critical">Critical</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" name="status" id="status" required>
+                        <option value="" selected>Select Status</option>                    
+                        <option value="New">New</option>
+                        <option value="Triaged">Triaged</option>
+                        <option value="Rewarded">Rewarded</option>
+                        <option value="Duplicate">Duplicate</option>
+                        <option value="Closed">Closed</option>
+                    </select>
+                </div>
+            
+                <div class="mb-3">
+                    <label for="reward" class="form-label">Reward (USD)</label>
+                    <input type="number" class="form-control" name="reward" id="reward" placeholder="Enter reward amount" step="0.01" min="0" required>
+                </div>
+                <button type="submit" class="btn btn-success">Save</button>
+            </form>
+        </div>
+      </div>
+    </div>
+</div>

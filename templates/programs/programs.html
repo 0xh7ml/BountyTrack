@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Programs | Bounty Track
+{% endblock title %}
+
+{% block pagename %}
+    Programs
+{% endblock pagename %}
+
+{% block RightHeaderContent %}
+<div class="float-sm-right">
+    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add-program"> Add Program </button>
+</div>
+{% include "programs/program-add.html" %}
+{% endblock RightHeaderContent %}
+{% block content %}
+<div class="col-12">
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive"> <!-- Makes table scrollable on small screens -->
+                <table class="table table-bordered text-nowrap">
+                    <thead class="table-dark text-center"> <!-- Dark header for better visibility -->
+                        <tr>
+                            <th>S/N</th>
+                            <th>Program name</th>
+                            <th>Platform name</th>
+                            <th>Created at</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        {% if programs %}
+                            {% for program in programs %}                    
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ program.name|capfirst }}</td>
+                                <td>{{ program.platform.name|capfirst }}</td>
+                                <td>{{ program.created_at|date:'d-m-Y' }}</td>
+                                <td>
+                                    <div class="text-center">
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#edit-program-{{ program.id }}">
+                                                <i class="fa fa-pencil"></i>
+                                            </button>
+                                            {% include "programs/program-edit.html" %}
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="handleAction('{% url "program-delete" program.id %}')">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td class="text-center" colspan="9">
+                                <h5><i class="fa fa-hdd"></i> No Report!..</h5>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>    
+        </div>
+        <!-- Pagination -->
+        <div class="card-footer clearfix">
+            <ul class="pagination pagination-sm m-0 float-right">
+                {% if programs.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page=1">&laquo;</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ programs.previous_page_number }}">Previous</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">&laquo;</a></li>
+                <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                {% endif %}
+
+                <li class="page-item"><a class="page-link" href="#">Page {{ programs.number }} of {{programs.paginator.num_pages }}</a></li>
+
+                {% if programs.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ programs.next_page_number }}">Next</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ programs.paginator.num_pages }}">&raquo;</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+                <li class="page-item disabled"><a class="page-link" href="#">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock content %}
