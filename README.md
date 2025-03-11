@@ -11,28 +11,22 @@ The dashboard displays total earnings with a chart for easy visualization.
 - [ ] CRUD Ops
     - Reports
         - [x] Read
-        - [ ] Delete 
-        - [ ] Add
-        - [ ] Edit
+        - [x] Delete 
+        - [x] Add
+        - [x] Edit
 
     - Programs
-        - [ ] Read
-        - [ ] Delete 
-        - [ ] Add
-        - [ ] Edit
+        - [x] Read
+        - [x] Delete 
+        - [x] Add
+        - [x] Edit
 
     - Platforms
-        - [ ] Read
-        - [ ] Delete 
-        - [ ] Add
-        - [ ] Edit
-- [ ] Filters
-- [ ] Authentication & Authorization
-- [ ] Bounty Target & Monthly Earn Track
-- [ ] Total Earn show in Dashboard with Chart
-
-
-## Project Timeline
-- Started: 16 Feb, 2025
-- Deadline: 21 Feb, 2025
-- Daily Expected time: 60 mins
+        - [x] Read
+        - [x] Delete 
+        - [x] Add
+        - [x] Edit
+- [x] Filters
+- [x] Authentication & Authorization
+- [x] Bounty Target & Monthly Earn Track
+- [x] Total Earn show in Dashboard with Chart
