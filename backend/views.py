@@ -46,6 +46,16 @@ def home(request):
     if request.method == "GET":
         programs = Program.objects.all()
         total_earned = Report.objects.filter(status='Rewarded').aggregate(Sum('reward'))['reward__sum'] or 0
+
+        # Filter reports based on the selected program and limit to top 5
+        program_report_stats = Program.objects.annotate(
+            total_reports=Count('report'),
+            rewarded_count=Count('report', filter=Q(report__status='Rewarded')),
+            duplicate_count=Count('report', filter=Q(report__status='Duplicate')),
+            closed_count=Count('report', filter=Q(report__status='Closed')),
+            reward_amount=Sum('report__reward', filter=Q(report__status='Rewarded')),
+        ).order_by('-reward_amount')[:5]
+
         status_counts = {
             'New': Report.objects.filter(status='New').count(),
             'Triaged': Report.objects.filter(status='Triaged').count(),
@@ -58,6 +68,7 @@ def home(request):
             'total_earned': total_earned,
             'programs': programs,
             'status_counts': status_counts,
+            'program_report_stats': program_report_stats,
         })
 
 @login_required()
