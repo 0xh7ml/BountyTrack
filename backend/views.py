@@ -117,9 +117,13 @@ def ReportView(request):
         )
         programs = Program.objects.all()
         platforms = Platform.objects.all()
+        
+        paginator = Paginator(reports, 10)  # 10 devices per page
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
 
         return render(request, 'reports/reports.html', {
-            'reports': reports,
+            'reports': page_obj,
             'severities': severities,
             'statuses': statuses,
             'programs': programs,
@@ -302,7 +306,12 @@ def ProgramWiseAnalytics(request):
                 duplicate_count=Count('report', filter=Q(report__status='Duplicate')),
                 closed_count=Count('report', filter=Q(report__status='Closed')),
             )
-    return render(request, 'analytics/program.html', context={"data": program_report_stats, "programs": programs})
+        # Paginator for the program report stats
+        paginator = Paginator(program_report_stats, 10)  # 10 devices per page
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+    return render(request, 'analytics/program.html', context={"data": page_obj, "programs": programs})
 
 @login_required
 def ImportProgram(request):
