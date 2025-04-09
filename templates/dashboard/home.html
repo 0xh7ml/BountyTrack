@@ -11,6 +11,7 @@
 {% endblock pagename %}
 
 {% block content %}
+<!-- Total Earning & Time Widget -->
 <div class="col-md-4">
     <!-- Program Wise Timer -->
 
@@ -45,10 +46,72 @@
     </div>
     <!-- End Earned Widget -->
 </div>
-<div class="col-md-8">
-    <canvas id="myChart"></canvas>
-</div>
+<!-- End Total Earning & Time Widget -->
 
+<!-- Total Reports Widget -->
+<div class="col-md-8">
+
+
+    <div class="card border-0">
+        <div class="card-header">
+            <h3 class="card-title">Report Wise Analytics</h3>
+        </div>
+
+        <div class="card-body">
+            <canvas id="myChart" style="display: block;height: 280px;" width="100%"></canvas>
+        </div>
+    </div>
+</div>
+<!-- End Total Reports Widget -->
+
+<!-- Program Wise Analytics -->
+<div class="col-md-12 mt-2">
+    <div class="card border-0">
+        <div class="card-header">
+            <h3 class="card-title">Program Wise Analytics</h3>
+            <div class="card-tools">
+                <a href="{% url "analytics.program" %}">
+                    <button type="button" class="btn btn-sm btn-outline-info">
+                        View All
+                    </button>
+                </a>
+            </div>
+        </div>
+        <div class="card-body card-body table-responsive p-0">
+            <table class="table table-valign-middle">
+                <thead>
+                    <tr>
+                        <th>Program Name</th>
+                        <th>Total Reports</th>
+                        <th>Rewarded</th>
+                        <th>Duplicate</th>
+                        <th>Rejected</th>
+                        <th>Total Bounty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for program in program_report_stats %}
+                        <tr>
+                            <td>{{ program.name }}</td>
+                            <td>{{ program.total_reports }}</td>
+                            <td>{{ program.rewarded_count }}</td>
+                            <td>{{ program.duplicate_count }}</td>
+                            <td>{{ program.closed_count }}</td>
+                            <td>
+                                {% if program.reward_amount != None  %}
+                                    {{program.reward_amount}}
+                                {% else %}
+                                    0
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- End Program Wise Analytics Widget -->
 <script>
     // Timer Functionality
     let interval = null;
