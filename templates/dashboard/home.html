@@ -78,7 +78,7 @@
             </div>
         </div>
         <div class="card-body card-body table-responsive p-0">
-            <table class="table table-valign-middle">
+            <table class="table table-valign-middle text-center">
                 <thead>
                     <tr>
                         <th>Program Name</th>
@@ -92,14 +92,14 @@
                 <tbody>
                     {% for program in program_report_stats %}
                         <tr>
-                            <td>{{ program.name }}</td>
+                            <td>{{ program.name}}</td>
                             <td>{{ program.total_reports }}</td>
                             <td>{{ program.rewarded_count }}</td>
                             <td>{{ program.duplicate_count }}</td>
                             <td>{{ program.closed_count }}</td>
                             <td>
                                 {% if program.reward_amount != None  %}
-                                    {{program.reward_amount}}
+                                    $ {{program.reward_amount}}
                                 {% else %}
                                     0
                                 {% endif %}
