@@ -8,10 +8,14 @@
 {% endblock pagename %}
 
 {% block RightHeaderContent %}
-<div class="float-sm-right">
-    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add-report"> New Report </button>
+<div class="float-right">
+    <div class="btn-group mr-1 mb-2">
+        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add-report"> New Report </button>
+        <button class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#import-report"> Import CSV </button>
+    </div>
 </div>
 {% include "reports/report-add.html" %}
+{% include "reports/report-import.html" %}
 {% endblock RightHeaderContent %}
 
 {% block content %}

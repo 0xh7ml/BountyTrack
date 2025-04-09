@@ -1,0 +1,19 @@
+<!-- Modal content-->
+<div class="modal fade" id="import-program" tabindex="-1" aria-labelledby="import-program-modal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Import Program</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form method="POST" action="{% url "import.program" %} " enctype="multipart/form-data">{% csrf_token %}
+                <div class="mb-3">
+                    <input class="form-control" type="file" accept=".csv" name="file" required>
+                </div>
+                <button type="submit" class="btn btn-success">Import File</button>
+            </form>
+        </div>
+      </div>
+    </div>
+</div>

@@ -13,13 +13,22 @@ urlpatterns = [
     path('reports/edit/<int:id>/', view=ReportEdit, name='report-edit'),
     path('reports/delete/<int:id>/', view=ReportDelete, name='report-delete'),
 
+    # Programs
     path('programs/', view=ProgramView, name='programs'),
     path('programs/create/', view=ProgramCreate, name='program-create'),
     path('programs/edit/<int:id>/', view=ProgramEdit, name='program-edit'),
     path('programs/delete/<int:id>/', view=ProgramDelete, name='program-delete'),
 
+    # Platforms
     path('platforms/', view=PlatformView, name='platforms'),
     path('platforms/create/', view=PlatformCreate, name='platform-create'),
     path('platforms/edit/<int:id>/', view=PlatformEdit, name='platform-edit'),
     path('platforms/delete/<int:id>/', view=PlatformDelete, name='platform-delete'),
+
+    # Analytics
+    path('analytics/program', view=ProgramWiseAnalytics, name='analytics.program'),
+
+    # Import/Export 
+    path('import/program/', view=ImportProgram, name='import.program'),
+    path('import/report/', view=ImportReport, name='import.report'),
 ]

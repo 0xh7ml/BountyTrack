@@ -19,6 +19,26 @@
     </li>
     <li class="nav-item has-treeview mb-2">
       <a href="#" class="nav-link">
+        <i class="nav-icon fa-solid fa-chart-line"></i>
+        <p>
+          Analytics
+          <i class="right fas fa-angle-left"></i>
+        </p>
+      </a>
+      <ul class="nav nav-treeview">
+        <!-- Setup Link -->
+        <li class="nav-item">
+          <a href="{% url "analytics.program" %}" class="nav-link">
+            <i class="far fa-circle nav-icon"></i>
+            <p>
+              Program Wise
+            </p>
+          </a>
+        </li>
+      </ul>
+    </li>
+    <li class="nav-item has-treeview mb-2">
+      <a href="#" class="nav-link">
         <i class="nav-icon fa-solid fa-gear"></i>
         <p>
           Setup

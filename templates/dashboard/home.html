@@ -11,79 +11,153 @@
 {% endblock pagename %}
 
 {% block content %}
-<div class="col-lg-3 col-6">
-    <div class="small-box bg-info">
-        <div class="inner">
-            <p class="font-weight-bold">New Reports</p>
-            {% if new_reports %}
-                <h3>{{ new_reports }}</h3>
-            {% else %}
-                <h3>0</h3>
-            {% endif %}
-        </div>
-        <div class="icon">
-            <i class="fa fa-folder-open"></i>
-        </div>
-    </div>
-</div>
-<div class="col-lg-3 col-6">
-    <div class="small-box bg-orange">
-        <div class="inner">
-            <p class="font-weight-bold">Triaged Reports</p>
-            {% if triaged_reports %}
-                <h3>{{ triaged_reports }}</h3>
-            {% else %}
-                <h3>0</h3>
-            {% endif %}
-        </div>
-        <div class="icon">
-            <i class="fa fa-arrow-right-from-bracket"></i>
+<div class="col-md-4">
+    <!-- Program Wise Timer -->
+
+    <div class="card card-success card-outline">
+        <div class="card-body">
+            <p class="text-center fw-light">Track Hunt</p>
+            <h2 class="text-center" id="timerDisplay">0:00</h2> <!-- Timer display -->
+            <select class="form-select" id="programSelect">
+                <option value="" selected>Select Program</option>
+                {% for program in programs %}
+                    <option value="{{ program.id }}">{{ program.name }}</option>
+                {% endfor %}
+            </select>
+            <div class="d-flex justify-content-center align-items-center mt-3">
+                <button class="btn btn-primary ms-2" id="startTimerBtn"><i class="fa-solid fa-play"></i> Start</button>
+                <button class="btn btn-danger ms-2 d-none" id="stopTimerBtn"><i class="fa-solid fa-stop"></i> Stop</button>
+            </div>
+            
         </div>
     </div>
-</div>
-<div class="col-lg-3 col-6">
-    <div class="small-box bg-danger">
-        <div class="inner">
-            <p class="font-weight-bold">Rejected Reports</p>
-            {% if rejected_reports %}
-                <h3>{{ rejected_reports }}</h3>
-            {% else %}
-                <h3>0</h3>
-            {% endif %}
+
+    <!-- End Program Wise Timer -->
+    
+    <!-- Earned Widget -->
+    <div class="card card-primary card-outline mt-3">
+        <div class="card-body">
+        <p class="text-center fw-light">Total Earned</p>
+        <div class="d-flex justify-content-around align-items-center fw-bold">
+            <h2>${{total_earned}}</h2>
         </div>
-        <div class="icon">
-            <i class="fa fa-cancel"></i>
         </div>
     </div>
+    <!-- End Earned Widget -->
 </div>
-<div class="col-lg-3 col-6">
-    <div class="small-box bg-teal">
-        <div class="inner">
-            <p class="font-weight-bold">Rewarded Reports</p>
-            {% if rewarded_reports %}
-                <h3>{{ rewarded_reports }}</h3>
-            {% else %}
-                <h3>0</h3>
-            {% endif %}
-        </div>
-        <div class="icon">
-            <i class="fa fa-check"></i>
-        </div>
-    </div>
+<div class="col-md-8">
+    <canvas id="myChart"></canvas>
 </div>
-<div class="col-lg-3 col-6">
-    <div class="small-box bg-success">
-        <div class="inner">
-            <p class="font-weight-bold">Total Earned</p>
-            {% if total_earned %}
-                <h3>{{ total_earned }}</h3>
-            {% else %}
-                <h3>$0</h3>
-            {% endif %}
-        </div>
-        <div class="icon">
-            <i class="fa fa-dollar-sign"></i>
-        </div>
-    </div>
-</div>
+
+<script>
+    // Timer Functionality
+    let interval = null;
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const startBtn = document.getElementById("startTimerBtn");
+        const stopBtn = document.getElementById("stopTimerBtn");
+        const programSelect = document.getElementById("programSelect");
+        const timerDisplay = document.getElementById("timerDisplay");
+
+        // Function to check if a program is selected before starting the timer
+        function isProgramSelected() {
+            return programSelect.value !== '';
+        }
+
+        // Start Timer (Start Stopwatch)
+        startBtn.addEventListener("click", function() {
+            if (!isProgramSelected()) {
+                alert("Please select a program.");
+                return;
+            }
+
+            // If the start time is not already stored, set it to the current time
+            if (!sessionStorage.getItem("startTime")) {
+                sessionStorage.setItem("startTime", Date.now());  // Record the start time in milliseconds
+            }
+
+            // Start counting time (stopwatch logic)
+            interval = setInterval(updateTimer, 1000);  // Update the timer every second
+
+            startBtn.classList.add("d-none");
+            stopBtn.classList.remove("d-none");
+        });
+
+        // Stop Timer (Stop Stopwatch and Save Duration)
+        stopBtn.addEventListener("click", function() {
+            clearInterval(interval);  // Stop the stopwatch
+
+            const startTime = parseInt(sessionStorage.getItem("startTime"), 10);
+            if (!startTime) {
+                alert("No timer is running.");
+                return;
+            }
+
+            const endTime = Date.now();  // Record the end time
+            const elapsedTime = endTime - startTime;  // Calculate the elapsed time in milliseconds
+            const duration = new Date(elapsedTime).toISOString().substr(11, 8);  // Format as hh:mm:ss
+        });
+
+        // Update the timer display every second
+        function updateTimer() {
+            const startTime = parseInt(sessionStorage.getItem("startTime"), 10);
+            if (!startTime) {
+                clearInterval(interval);
+                return;
+            }
+
+            const elapsed = Date.now() - startTime;
+            const minutes = Math.floor(elapsed / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+        }
+    });
+
+    // Chart Js Data
+    const statusData = {{ status_counts|safe }};
+    const statusLabels = Object.keys(statusData);
+    const statusValues = Object.values(statusData);
+
+    const ctx = document.getElementById('myChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                label: 'Total Reports',
+                data: statusValues,
+                backgroundColor: [
+                    '#007bff',
+                    '#28a745',
+                    '#dc3545',
+                    '#ffc107'
+                ],
+                borderColor: [
+                    '#0056b3',
+                    '#1c7430',
+                    '#a71d2a',
+                    '#d39e00'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid:{
+                        display:true
+                    }
+                },
+                x: {
+                    grid:{
+                        display:false
+                    }
+                }
+            }
+        }
+    });
+</script>
 {% endblock content %}
