@@ -56,6 +56,25 @@ class Report(models.Model):
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Reports"
+        verbose_name = "Report"
+        db_table = "tb_reports"
+    
     def __str__(self):
         return self.title
     
+class ProgramLog(models.Model):
+    program = models.ForeignKey('Program', on_delete=models.CASCADE)
+    duration = models.DurationField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Program Logs"
+        verbose_name = "Program Log"
+        db_table = "tb_program_logs"
+
+    def __str__(self):
+        return f"{self.program.name} - {self.report.title}"

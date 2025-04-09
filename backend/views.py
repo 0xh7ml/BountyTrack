@@ -1,9 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
-from django.db.models import Sum,Q
+from django.db.models import Sum, Q, Count
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from .resources import ProgramResource, ReportResource
+from tablib import Dataset
+from django.http import JsonResponse
 
 # Call the models
 from .models import Program, Platform, Report
@@ -23,6 +26,7 @@ def CustomLoginView(request):
         if user is not None:
             if user.is_active:  # Check if the user is active
                 login(request, user)    
+                messages.success(request, "You have successfully logged in.")
                 return redirect('home')
             
             else:
@@ -34,23 +38,26 @@ def CustomLoginView(request):
 
 def CustomLogoutView(request):
     logout(request)
+    messages.success(request, "You have successfully logged out.")
     return redirect('login')
 
 @login_required()
 def home(request):
     if request.method == "GET":
-        new_reports = Report.objects.filter(status='New').count()
-        rewarded_reports = Report.objects.filter(status='Rewarded').count()
-        rejected_reports = Report.objects.filter(status__in=['Closed', 'Duplicate']).count()
-        triaged_reports = Report.objects.filter(status='Triaged').count()
+        programs = Program.objects.all()
         total_earned = Report.objects.filter(status='Rewarded').aggregate(Sum('reward'))['reward__sum'] or 0
+        status_counts = {
+            'New': Report.objects.filter(status='New').count(),
+            'Triaged': Report.objects.filter(status='Triaged').count(),
+            'Rewarded': Report.objects.filter(status='Rewarded').count(),
+            'Closed': Report.objects.filter(status='Closed').count(),
+            'Duplicate': Report.objects.filter(status='Duplicate').count(),
+        }
 
         return render(request, 'dashboard/home.html', {
-            'new_reports': new_reports,
-            'rewarded_reports': rewarded_reports,
-            'rejected_reports': rejected_reports,
-            'triaged_reports': triaged_reports,
-            'total_earned': total_earned
+            'total_earned': total_earned,
+            'programs': programs,
+            'status_counts': status_counts,
         })
 
 @login_required()
@@ -107,6 +114,7 @@ def ReportView(request):
             'programs': programs,
             'platforms': platforms,
         })
+
 @login_required()
 def ReportCreate(request):
     if request.method == "POST":
@@ -119,9 +127,12 @@ def ReportCreate(request):
         
         report = Report(title=title, vulnerability=vulnerability, severity=severity, status=status, program_id=program, reward=reward)
         report.save()
-        
+
+        messages.success(request, "Report created successfully.")
         return redirect('reports')
+    messages.error(request, "Error creating report.")
     return redirect('reports')
+
 @login_required()
 def ReportEdit(request, id):
     if request.method == "POST":
@@ -136,7 +147,9 @@ def ReportEdit(request, id):
             report.reward = request.POST.get('reward')
             report.save()
 
+            messages.success(request, "Report updated successfully.")
             return redirect('reports')
+        messages.error(request, "Error updating report.")
     return redirect('reports')
 
 @login_required()
@@ -146,9 +159,11 @@ def ReportDelete(request, id):
         
         if report:
             report.delete()
-            
-            return redirect('reports')
+            return JsonResponse({'message': 'Report deleted successfully.', 'status': 'success'}, status=200)
+        else:
+            return JsonResponse({'message': 'Report not found.', 'status': 'error'}, status=404)
     return redirect('reports')
+
 @login_required()
 def ProgramView(request):
     if request.method == "GET":
@@ -163,6 +178,7 @@ def ProgramView(request):
             'programs': page_obj,
             'platforms': platforms
         })
+
 @login_required()
 def ProgramCreate(request):
     if request.method == "POST":
@@ -170,9 +186,12 @@ def ProgramCreate(request):
         platform = request.POST.get('platform')
         program = Program(name=name, platform_id=platform)
         program.save()
-        
+
+        messages.success(request, "Program created successfully.")
         return redirect('programs')
+    messages.error(request, "Error creating program.")
     return redirect('programs')
+
 @login_required()
 def ProgramEdit(request, id):
     if request.method == "POST":
@@ -183,8 +202,11 @@ def ProgramEdit(request, id):
             program.platform_id = request.POST.get('platform')
             program.save()
 
+            messages.success(request, "Program updated successfully.")
             return redirect('programs')
+        messages.error(request, "Error updating program.")
     return redirect('programs')
+
 @login_required()
 def ProgramDelete(request, id):
     if request.method == "POST":
@@ -192,10 +214,12 @@ def ProgramDelete(request, id):
         
         if program:
             program.delete()
-            
-            return redirect('programs')
+            return JsonResponse({'message': 'Program deleted successfully.', 'status': 'success'}, status=200)
+        else:
+            return JsonResponse({'message': 'Program not found.', 'status': 'error'}, status=404)
     return redirect('programs')
 
+@login_required()
 def PlatformView(request):
     if request.method == "GET":
         platforms = Platform.objects.all().order_by('-created_at')
@@ -207,15 +231,19 @@ def PlatformView(request):
         return render(request, 'platforms/platforms.html', {
             'platforms': page_obj
         })
+
 @login_required()
 def PlatformCreate(request):
     if request.method == "POST":
         name = request.POST.get('name')
         platform = Platform(name=name)
         platform.save()
-        
+
+        messages.success(request, "Platform created successfully.")
         return redirect('platforms')
+    messages.error(request, "Error creating platform.")
     return redirect('platforms')
+
 @login_required()
 def PlatformEdit(request, id):
     if request.method == "POST":
@@ -225,15 +253,124 @@ def PlatformEdit(request, id):
             platform.name = request.POST.get('name')
             platform.save()
 
+            messages.success(request, "Platform updated successfully.")
             return redirect('platforms')
+        messages.error(request, "Error updating platform.")
     return redirect('platforms')
+
 @login_required()
 def PlatformDelete(request, id):
     if request.method == "POST":
         platform = get_object_or_404(Platform, pk=id)
-        
         if platform:
             platform.delete()
-            
-            return redirect('platforms')
+            return JsonResponse({'message': 'Platform deleted successfully.', 'status': 'success'}, status=200)
+        else:
+            return JsonResponse({'message': 'Platform not found.', 'status': 'error'}, status=404)
     return redirect('platforms')
+
+@login_required()
+def ProgramWiseAnalytics(request):
+    programs = Program.objects.all()
+    
+    if request.method == "GET":
+        program = request.GET.get('id', '')
+        
+        if program:
+            # Filter reports based on the selected program
+            program_report_stats = Program.objects.filter(id=program).annotate(
+                total_reports=Count('report'),
+                rewarded_count=Count('report', filter=Q(report__status='Rewarded')),
+                duplicate_count=Count('report', filter=Q(report__status='Duplicate')),
+                closed_count=Count('report', filter=Q(report__status='Closed')),
+            )
+        else:
+            program_report_stats = Program.objects.annotate(
+                total_reports=Count('report'),
+                rewarded_count=Count('report', filter=Q(report__status='Rewarded')),
+                duplicate_count=Count('report', filter=Q(report__status='Duplicate')),
+                closed_count=Count('report', filter=Q(report__status='Closed')),
+            )
+    return render(request, 'analytics/program.html', context={"data": program_report_stats, "programs": programs})
+
+@login_required
+def ImportProgram(request):
+    if request.method == "POST":
+        # Get the uploaded file
+        file = request.FILES.get('file')
+        
+        if file:
+            try:
+                # Create an instance of ProgramResource
+                program_resource = ProgramResource()
+                
+                # Read and decode the file data into a Dataset
+                dataset = Dataset()
+                dataset.load(file.read().decode(), format='csv')  # Change format if needed
+                
+                # Perform a dry run to check for errors before importing
+                result = program_resource.import_data(dataset, dry_run=True)
+                
+                if result.has_errors():
+                    # If there are errors, display them
+                    for error in result.row_errors():
+                        messages.error(request, f"Error in row {error['row']}: {error['error']}")
+                else:
+                    # Proceed with actual data import
+                    program_resource.import_data(dataset, dry_run=False)
+                    messages.success(request, "Programs imported successfully.")
+
+            except Exception as e:
+                # Handle any exceptions that occur during the import process
+                messages.error(request, f"Error importing programs: {str(e)}")
+        
+        else:
+            # If no file was uploaded, inform the user
+            messages.error(request, "No file uploaded.")
+    else:
+        # If the request method is not POST, inform the user
+        messages.error(request, "Invalid request method.")
+    
+    # Redirect to the programs page after the process
+    return redirect('programs')
+
+@login_required()
+def ImportReport(request):
+    if request.method == "POST":
+        # Get the uploaded file
+        file = request.FILES.get('file')
+        
+        if file:
+            try:
+                # Create an instance of ProgramResource
+                report_resource = ReportResource()
+                
+                # Read and decode the file data into a Dataset
+                dataset = Dataset()
+                dataset.load(file.read().decode(), format='csv')  # Change format if needed
+                
+                # Perform a dry run to check for errors before importing
+                result = report_resource.import_data(dataset, dry_run=True)
+                
+                if result.has_errors():
+                    # If there are errors, display them
+                    messages.error(request, f"Errors during import")
+                
+                else:
+                    # Proceed with actual data import
+                    report_resource.import_data(dataset, dry_run=False)
+                    messages.success(request, "Reports imported successfully.")
+
+            except Exception as e:
+                # Handle any exceptions that occur during the import process
+                messages.error(request, f"Error importing reports: {str(e)}")
+        
+        else:
+            # If no file was uploaded, inform the user
+            messages.error(request, "No file uploaded.")
+    else:
+        # If the request method is not POST, inform the user
+        messages.error(request, "Invalid request method.")
+    
+    # Redirect to the reports page after the process
+    return redirect('reports')

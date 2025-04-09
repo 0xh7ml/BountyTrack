@@ -15,6 +15,8 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/css/adminlte.min.css" rel="stylesheet">
   <!-- Date Range Picker -->
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  <!-- Chart Js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </head>
 <body class="hold-transition sidebar-mini">
@@ -34,13 +36,13 @@
                 <a class="nav-link" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                     <div class="user-panel mr-2 d-flex">
                         <div class="image">
-                            <img src="https://www.gravatar.com/avatar/64e1b8d34f425d19e1ee2ea7236d3028?s=80&d=retro" class="img-circle" alt="User Image">
+                            <img src="https://api.dicebear.com/9.x/bottts-neutral/png?size=64&seed={{ request.user.username }}" class="img-circle" alt="User Image">
                         </div>
                     </div>
                 </a>
                 <div class="dropdown-menu dropdown-menu-md dropdown-menu-right mt-1 p-3" style="left: inherit; right: 0px;" aria-labelledby="navbarDropdown">
                     <div class="dropdown-item d-flex p-2">
-                        <img src="https://www.gravatar.com/avatar/64e1b8d34f425d19e1ee2ea7236d3028?s=80&d=retro" class="img-circle" alt="User Image" width="36px" height="100%">
+                        <img src="https://api.dicebear.com/9.x/bottts-neutral/png?size=64&seed={{ request.user.username }}" class="img-circle" alt="User Image" width="36px" height="100%">
                         <div class="ml-2">
                             <div class="text-sm font-medium">{{ request.user.username }} </div>
                             <div class="text-xs">{{ request.user.email }} </div>
@@ -104,6 +106,28 @@
       <div class="content">
         <div class="container-fluid">
           <div class="row">
+              <!-- Sweet Alert -->
+              {% if messages %}
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        {% for message in messages %}
+                            Swal.fire({
+                                icon: '{{ message.tags }}',
+                                title: '{{ message }}',
+                                timer: 3000,
+                                showConfirmButton: false,
+                                toast: true,
+                                position: 'top-end',
+                                timerProgressBar: true,
+                                width: '400px',
+                                background: '{% if message.tags == "success" %}#d4edda{% elif message.tags == "info" %}#d1ecf1{% elif message.tags == "warning" %}#fff3cd{% elif message.tags == "error" or message.tags == "danger" %}#f8d7da{% else %}#f0f0f0{% endif %}', 
+                            });
+                        {% endfor %}
+                    });
+                </script>
+              {% endif %}
+              <!-- End Sweet Alert -->
+
               {% block content %}
                 <!-- Content goes here -->
               {% endblock content %}
@@ -134,6 +158,8 @@
   <!-- Date Range Picker -->
   <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <!-- Axios -->
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <!-- Custom JS -->

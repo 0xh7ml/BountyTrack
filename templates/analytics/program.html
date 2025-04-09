@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}
+    Program Wise Analytics | Bounty Track
+{% endblock title %}
+
+{% block pagename %}
+Program Wise Analytics
+{% endblock pagename %}
+
+
+{% block content %}
+<div class="col-12">
+    <div class="card">
+        <div class="card-body">
+            <form class="form-inline" method="GET">
+                <div class="form-group mr-1 mb-2">
+                    <select class="form-control" name="id">
+                        <option value="">-- Select Program --</option>
+                        {% for program in programs %}
+                            <option value="{{ program.id }}" {% if request.GET.program == program.id %}selected{% endif %}>{{ program.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div> 
+                <button type="submit" class="btn btn-primary btn mb-2 mr-2">Search</button>
+                <button type="button" class="btn btn-info btn mb-2" onclick="window.location.href='{% url 'analytics.program' %}'">Reset</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive"> <!-- Makes table scrollable on small screens -->
+                <table class="table table-bordered text-nowrap">
+                    <thead class="table-dark text-center"> <!-- Dark header for better visibility -->
+                        <tr>
+                            <th>S/N</th>
+                            <th>Program Name</th>
+                            <th>Total Report</th>
+                            <th>Total Rewarded</th>
+                            <th>Total Rejected</th>
+                            <th>Total Duplicate</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        {% if data %}
+                            {% for program in data %}                    
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ program.name }}</td>
+                                <td>{{ program.total_reports }}</td>
+                                <td>{{ program.rewarded_count }}</td>
+                                <td>{{ program.closed_count }}</td>
+                                <td>{{ program.duplicate_count }}</td>
+                            {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td class="text-center" colspan="11">
+                                <h5><i class="fa fa-hdd"></i> No data!..</h5>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>    
+        </div>
+        <!-- Pagination -->
+        <div class="card-footer clearfix">
+            <ul class="pagination pagination-sm m-0 float-right">
+                {% if data.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page=1">&laquo;</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ data.previous_page_number }}">Previous</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">&laquo;</a></li>
+                <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                {% endif %}
+
+                <li class="page-item"><a class="page-link" href="#">Page {{ data.number }} of {{data.paginator.num_pages }}</a></li>
+
+                {% if data.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ data.next_page_number }}">Next</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ data.paginator.num_pages }}">&raquo;</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+                <li class="page-item disabled"><a class="page-link" href="#">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock content %}

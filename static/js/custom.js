@@ -26,25 +26,49 @@ function getCsrfToken() {
 function handleAction(url) {
   const csrfToken = getCsrfToken();
 
-  axios.post(url,{
-      csrfmiddlewaretoken: csrfToken
-  },
-  {
-      headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+  axios.post(url, {
+          csrfmiddlewaretoken: csrfToken
       },
+      {
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+          },
+      })
+      .then(response => {
+          // Handle successful response
+          const message = response.data.message;
+          const status = response.data.status;
 
-  })
-  .then(response => {
-      // Handle successful response
-      location.reload(); // Reload the page to reflect changes
-  })
-  .catch(error => {
-      // Handle error
-      console.error(error);
-  });
+          // Use SweetAlert to display the message
+          if (status === 'success') {
+              Swal.fire({
+                  icon: 'success',
+                  title: 'Success',
+                  text: message,
+                  confirmButtonText: 'OK'
+              }).then(() => {
+                  location.reload(); // Reload the page to reflect changes
+              });
+          } else {
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: message,
+                  confirmButtonText: 'OK'
+              });
+          }
+      })
+      .catch(error => {
+          // Handle error
+          console.error(error);
+          Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'An error occurred. Please try again later.',
+              confirmButtonText: 'OK'
+          });
+      });
 }
-
 function resetForm() {
   window.location.href = '/reports/';
 }
