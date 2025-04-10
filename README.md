@@ -68,6 +68,8 @@ python manage.py runserver
 
 ### Docker support
 
+Move the `.env.example` to `.env` and update the username and password and if you wanted it mark `DEBUG` true change that too.
+
 ```bash
 git clone https://github.com/0xh7ml/BountyTrack.git
 cd BountyTrack
