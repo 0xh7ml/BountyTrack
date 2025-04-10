@@ -38,10 +38,10 @@
     <!-- Earned Widget -->
     <div class="card card-primary card-outline mt-3">
         <div class="card-body">
-        <p class="text-center fw-light">Total Earned</p>
-        <div class="d-flex justify-content-around align-items-center fw-bold">
-            <h2>${{total_earned}}</h2>
-        </div>
+            <p class="text-center fw-light">Total Earned / <small>Total Report</small></p>
+            <div class="d-flex justify-content-around align-items-center fw-bold">
+                <h2>${{total_earned}}/<small>{{ total_report }}</small></h2>
+            </div>
         </div>
     </div>
     <!-- End Earned Widget -->
@@ -50,8 +50,6 @@
 
 <!-- Total Reports Widget -->
 <div class="col-md-8">
-
-
     <div class="card border-0">
         <div class="card-header">
             <h3 class="card-title">Report Wise Analytics</h3>
@@ -63,12 +61,24 @@
     </div>
 </div>
 <!-- End Total Reports Widget -->
-
-<!-- Program Wise Analytics -->
-<div class="col-md-12 mt-2">
+<!-- Severity Wise Analytics Widget -->
+<div class="col-md-4 mt-2">
     <div class="card border-0">
         <div class="card-header">
-            <h3 class="card-title">Program Wise Analytics</h3>
+            <h3 class="card-title">Severity Wise Analytics</h3>
+        </div>
+
+        <div class="card-body">
+            <canvas id="SeverityChart" style="display: block;height: 280px;" width="100%"></canvas>
+        </div>
+    </div>
+ </div>
+<!-- End Severity Wise Analytics Widget -->
+<!-- Program Wise Analytics -->
+<div class="col-md-8 mt-2">
+    <div class="card border-0">
+        <div class="card-header">
+            <h3 class="card-title">Top Programs</h3>
             <div class="card-tools">
                 <a href="{% url "analytics.program" %}">
                     <button type="button" class="btn btn-sm btn-outline-info">
@@ -111,7 +121,7 @@
         </div>
     </div>
 </div>
-<!-- End Program Wise Analytics Widget -->
+<!-- End Program Wise Analytics -->
 <script>
     // Timer Functionality
     let interval = null;
@@ -220,6 +230,39 @@
                     }
                 }
             }
+        }
+    });
+
+    // Severity Chart
+    const severityData = {{ severity_counts|safe }};
+    const severityLabels = Object.keys(severityData);
+    const severityValues = Object.values(severityData);
+    const severityCtx = document.getElementById('SeverityChart').getContext('2d');
+    new Chart(severityCtx, {
+        type: 'radar',
+        data: {
+            labels: severityLabels,
+            datasets: [{
+                label: 'Severity Wise Analytics',
+                data: severityValues,
+                backgroundColor: [
+                    '#007bff',
+                    '#28a745',
+                    '#dc3545',
+                    '#ffc107'
+                ],
+                borderColor: [
+                    '#0056b3',
+                    '#1c7430',
+                    '#a71d2a',
+                    '#d39e00'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
         }
     });
 </script>

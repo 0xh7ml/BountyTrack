@@ -39,6 +39,7 @@ Program Wise Analytics
                             <th>Total Rewarded</th>
                             <th>Total Rejected</th>
                             <th>Total Duplicate</th>
+                            <th>Total Bounty</th>
                         </tr>
                     </thead>
                     <tbody class="text-center">
@@ -51,6 +52,13 @@ Program Wise Analytics
                                 <td>{{ program.rewarded_count }}</td>
                                 <td>{{ program.closed_count }}</td>
                                 <td>{{ program.duplicate_count }}</td>
+                                <td>
+                                    {% if program.reward_amount != None  %}
+                                        $ {{ program.reward_amount }}
+                                    {% else %}
+                                        0
+                                    {% endif %}
+                                </td>
                             {% endfor %}
                         {% else %}
                         <tr>

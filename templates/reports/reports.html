@@ -93,7 +93,7 @@
                             {% for report in reports %}                    
                             <tr>
                                 <td>{{ report.id }}</td>
-                                <td>{{ report.title|truncatechars_html:45 }}</td>
+                                <td>{{ report.title|truncatechars_html:45|safe }}</td>
                                 <td>{{ report.vulnerability|capfirst }}</td>
                                 <td>{{ report.program|capfirst }}</td>
                                 <td>{{ report.program.platform|capfirst }}</td>
