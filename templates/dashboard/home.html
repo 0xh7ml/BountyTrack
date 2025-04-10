@@ -69,7 +69,7 @@
         </div>
 
         <div class="card-body">
-            <canvas id="SeverityChart" style="display: block;height: 280px;" width="100%"></canvas>
+            <canvas id="SeverityChart" style="display: block;height: 265px;" width="100%"></canvas>
         </div>
     </div>
  </div>
@@ -239,7 +239,7 @@
     const severityValues = Object.values(severityData);
     const severityCtx = document.getElementById('SeverityChart').getContext('2d');
     new Chart(severityCtx, {
-        type: 'radar',
+        type: 'pie',
         data: {
             labels: severityLabels,
             datasets: [{
