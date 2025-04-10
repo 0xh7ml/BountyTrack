@@ -42,9 +42,8 @@
 
 ## 🚀 Getting Started
 
-### Clone the Repository
-
-```console
+### Manual Installaion
+```bash
 git clone https://github.com/0xh7ml/BountyTrack.git
 cd BountyTrack
 
@@ -66,6 +65,26 @@ python manage.py createsuperuser # Create User with password
 
 python manage.py runserver
 ```
+
+### Docker support
+
+Move the `.env.example` to `.env` and update the username and password. If you wanted `DEBUG` needs to be true change that on the `.env` file.  
+
+```bash
+git clone https://github.com/0xh7ml/BountyTrack.git
+cd BountyTrack
+
+chmod +x run.sh
+./run.sh start
+
+# Visit: http://<ip>:8000
+```
+> [!IMPORTANT]  
+> Make sure you have [docker-compose](https://docs.docker.com/compose/install/) installed in your system
+
+> [!NOTE]  
+> You can check logs by entering this command `./run.sh logs` if you see any error you can create a issue.
+
 ## 📹 Demo
 ![Login](http://itsaikat.com/wp-content/uploads/2025/04/Screenshot-2025-04-10-at-12-41-17-Bounty-Track-Login.png)
 
