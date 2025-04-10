@@ -46,6 +46,15 @@ def home(request):
     if request.method == "GET":
         programs = Program.objects.all()
         total_earned = Report.objects.filter(status='Rewarded').aggregate(Sum('reward'))['reward__sum'] or 0
+        total_report = Report.objects.all().count()
+        
+        # Severity counts
+        severity_counts = {
+            'Low': Report.objects.filter(severity='Low').count(),
+            'Medium': Report.objects.filter(severity='Medium').count(),
+            'High': Report.objects.filter(severity='High').count(),
+            'Critical': Report.objects.filter(severity='Critical').count(),
+        }
 
         # Filter reports based on the selected program and limit to top 5
         program_report_stats = Program.objects.annotate(
@@ -69,6 +78,8 @@ def home(request):
             'programs': programs,
             'status_counts': status_counts,
             'program_report_stats': program_report_stats,
+            'total_report': total_report,
+            'severity_counts': severity_counts,
         })
 
 @login_required()
@@ -298,6 +309,7 @@ def ProgramWiseAnalytics(request):
                 rewarded_count=Count('report', filter=Q(report__status='Rewarded')),
                 duplicate_count=Count('report', filter=Q(report__status='Duplicate')),
                 closed_count=Count('report', filter=Q(report__status='Closed')),
+                reward_amount=Sum('report__reward', filter=Q(report__status='Rewarded')),
             )
         else:
             program_report_stats = Program.objects.annotate(
@@ -305,6 +317,7 @@ def ProgramWiseAnalytics(request):
                 rewarded_count=Count('report', filter=Q(report__status='Rewarded')),
                 duplicate_count=Count('report', filter=Q(report__status='Duplicate')),
                 closed_count=Count('report', filter=Q(report__status='Closed')),
+                reward_amount=Sum('report__reward', filter=Q(report__status='Rewarded')),
             )
         # Paginator for the program report stats
         paginator = Paginator(program_report_stats, 10)  # 10 devices per page
