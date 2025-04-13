@@ -110,11 +110,10 @@ def ReportView(request):
             filters &= Q(created_at__range=[start_date, end_date])
 
         # Filter the reports based on the applied filters
-        reports = Report.objects.filter(filters).order_by('updated_at')
-        # If no filters are applied, show all reports
+        reports = Report.objects.filter(filters).order_by('-updated_at')  # Updated order first
 
         # Get the lists of severities, statuses, programs, and platforms for the dropdowns
-        severities =  (
+        severities = (
             ('Low', 'Low'),
             ('Medium', 'Medium'),
             ('High', 'High'),

@@ -75,7 +75,7 @@
                 <table class="table table-bordered text-nowrap">
                     <thead class="table-dark text-center"> <!-- Dark header for better visibility -->
                         <tr>
-                            <th>ID</th>
+                            <th>S/N</th>
                             <th>Title</th>
                             <th>Vuln.</th>
                             <th>Program</th>
@@ -92,7 +92,7 @@
                         {% if reports %}
                             {% for report in reports %}                    
                             <tr>
-                                <td>{{ report.id }}</td>
+                                <td>{{ forloop.counter }}</td>
                                 <td>{{ report.title|truncatechars_html:45|safe }}</td>
                                 <td>{{ report.vulnerability|capfirst }}</td>
                                 <td>{{ report.program|capfirst }}</td>
