@@ -22,7 +22,11 @@
                     <label for="program" class="form-label">Program</label>
                     <select class="form-select" name="program" id="program" required>
                         {% for program in programs %}
-                            <option value="{{ program.id }}">{{ program.name }}</option>
+                            {%if program.id == report.program.id %}
+                                <option value="{{ program.id }}" selected>{{ program.name }}</option>
+                            {% else %}
+                                <option value="{{ program.id }}">{{ program.name }}</option>
+                            {% endif %}
                         {% endfor %}
                     </select>
                 </div>
