@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Menus | Bounty Track{% endblock %}
+{% block pagename %}Menu Management{% endblock %}
+
+{% block RightHeaderContent %}
+<div class="float-right">
+  <a href="{% url 'manage_menus.create' %}" class="btn btn-primary btn-sm">
+    <i class="fas fa-plus mr-1"></i> New Menu
+  </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="col-12">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead class="table-dark text-center">
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>URL Name</th>
+              <th>Icon</th>
+              <th>Parent</th>
+              <th>Order</th>
+              <th>Active</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody class="text-center">
+            {% for menu in menus %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>
+                <i class="{{ menu.icon }} mr-1"></i>
+                {{ menu.name }}
+              </td>
+              <td><code>{{ menu.url_name }}</code></td>
+              <td><small><code>{{ menu.icon }}</code></small></td>
+              <td>{{ menu.parent.name|default:"—" }}</td>
+              <td>{{ menu.order }}</td>
+              <td>
+                {% if menu.is_active %}
+                  <span class="badge badge-success">Active</span>
+                {% else %}
+                  <span class="badge badge-secondary">Inactive</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <a href="{% url 'manage_menus.edit' menu.id %}" class="btn btn-info">
+                    <i class="fa fa-pencil"></i>
+                  </a>
+                  <button class="btn btn-danger"
+                          onclick="handleAction('{% url 'manage_menus.delete' menu.id %}')">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8" class="text-center"><em>No menus found. Run <code>python manage.py seed_rbac</code> to seed.</em></td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ report.title }} — Bug Report</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "DejaVu Sans", Arial, sans-serif; font-size: 12px; color: #212529; padding: 30px 40px; }
+
+    /* Header */
+    .header { border-bottom: 3px solid #343a40; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
+    .header h1 { font-size: 20px; color: #343a40; }
+    .header .meta { font-size: 11px; color: #6c757d; text-align: right; }
+
+    /* Badges */
+    .badge { display: inline-block; padding: 3px 9px; border-radius: 4px; font-size: 11px; font-weight: bold; color: #fff; }
+    .badge-danger  { background: #dc3545; }
+    .badge-warning { background: #ffc107; color: #212529; }
+    .badge-info    { background: #17a2b8; }
+    .badge-success { background: #28a745; }
+    .badge-primary { background: #007bff; }
+
+    /* Info table */
+    .info-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    .info-table td { padding: 5px 8px; border: 1px solid #dee2e6; font-size: 11px; }
+    .info-table td:first-child { background: #f8f9fa; font-weight: bold; width: 140px; }
+
+    /* Sections */
+    .section { margin-bottom: 20px; page-break-inside: avoid; }
+    .section-title { font-size: 13px; font-weight: bold; color: #343a40; border-left: 4px solid #007bff; padding-left: 8px; margin-bottom: 8px; }
+    .section-body { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 10px 12px; font-size: 11px; line-height: 1.6; }
+    .section-body p { margin-bottom: 6px; }
+    .section-body ul, .section-body ol { padding-left: 18px; margin-bottom: 6px; }
+    .section-body code, .section-body pre { font-family: monospace; background: #e9ecef; padding: 2px 4px; border-radius: 3px; font-size: 10px; }
+    .section-body pre { padding: 8px; white-space: pre-wrap; }
+
+    /* Empty state */
+    .empty { color: #6c757d; font-style: italic; }
+
+    /* Footer */
+    .footer { border-top: 1px solid #dee2e6; padding-top: 10px; margin-top: 30px; font-size: 10px; color: #6c757d; display: flex; justify-content: space-between; }
+
+    @page { size: A4; margin: 20mm 15mm; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div style="font-size:11px;color:#6c757d;margin-bottom:4px;">BountyTrack — Vulnerability Report</div>
+      <h1>{{ report.title }}</h1>
+      <div style="margin-top:6px;">
+        {% if report.severity == 'Critical' %}<span class="badge badge-danger">Critical</span>
+        {% elif report.severity == 'High' %}<span class="badge badge-warning">High</span>
+        {% elif report.severity == 'Medium' %}<span class="badge badge-info">Medium</span>
+        {% else %}<span class="badge badge-success">Low</span>{% endif %}
+        &nbsp;
+        {% if report.status == 'Rewarded' %}<span class="badge badge-success">{{ report.status }}</span>
+        {% elif report.status == 'Triaged' %}<span class="badge badge-warning">{{ report.status }}</span>
+        {% elif report.status == 'Duplicate' %}<span class="badge badge-info">{{ report.status }}</span>
+        {% elif report.status == 'Closed' %}<span class="badge badge-danger">{{ report.status }}</span>
+        {% else %}<span class="badge badge-primary">{{ report.status }}</span>{% endif %}
+      </div>
+    </div>
+    <div class="meta">
+      <div>Report #{{ report.id }}</div>
+      <div>Submitted: {{ report.created_at|date:"d M Y" }}</div>
+      <div>Updated: {{ report.updated_at|date:"d M Y" }}</div>
+    </div>
+  </div>
+
+  <!-- Info table -->
+  <table class="info-table">
+    <tr>
+      <td>Vulnerability</td>
+      <td>{{ report.vulnerability }}</td>
+      <td>Program</td>
+      <td>{{ report.program.name }}</td>
+    </tr>
+    <tr>
+      <td>Platform</td>
+      <td>{{ report.program.platform.name }}</td>
+      <td>Reward</td>
+      <td>{{ report.reward }}</td>
+    </tr>
+    <tr>
+      <td>Reporter</td>
+      <td>{% if report.reporter %}{{ report.reporter.username }}{% else %}—{% endif %}</td>
+      <td>Coordinator</td>
+      <td>{% if report.coordinator %}{{ report.coordinator.username }}{% else %}—{% endif %}</td>
+    </tr>
+  </table>
+
+  <!-- Description -->
+  <div class="section">
+    <div class="section-title">Description</div>
+    <div class="section-body">
+      {% if report.description %}{{ report.description|safe }}{% else %}<span class="empty">No description provided.</span>{% endif %}
+    </div>
+  </div>
+
+  <!-- Steps to Reproduce -->
+  <div class="section">
+    <div class="section-title">Steps to Reproduce</div>
+    <div class="section-body">
+      {% if report.steps_to_reproduce %}{{ report.steps_to_reproduce|safe }}{% else %}<span class="empty">No steps provided.</span>{% endif %}
+    </div>
+  </div>
+
+  <!-- Impact -->
+  <div class="section">
+    <div class="section-title">Impact</div>
+    <div class="section-body">
+      {% if report.impact %}{{ report.impact|safe }}{% else %}<span class="empty">No impact description provided.</span>{% endif %}
+    </div>
+  </div>
+
+  <!-- Remediation -->
+  <div class="section">
+    <div class="section-title">Remediation / Fix</div>
+    <div class="section-body">
+      {% if report.remediation %}{{ report.remediation|safe }}{% else %}<span class="empty">No remediation provided.</span>{% endif %}
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span>Generated by BountyTrack</span>
+    <span>{{ report.title }} · Report #{{ report.id }}</span>
+  </div>
+
+</body>
+</html>

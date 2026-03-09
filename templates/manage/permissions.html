@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Permissions | Bounty Track{% endblock %}
+{% block pagename %}Permissions{% endblock %}
+
+{% block content %}
+<div class="col-12">
+  <div class="card">
+    <div class="card-header">
+      <h5 class="mb-0">All Permissions</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered table-sm">
+          <thead class="table-dark text-center">
+            <tr>
+              <th>#</th>
+              <th>Codename</th>
+              <th>Menu</th>
+              <th>Action</th>
+              <th>Roles</th>
+            </tr>
+          </thead>
+          <tbody class="text-center">
+            {% for perm in permissions %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td><code>{{ perm.codename }}</code></td>
+              <td>{{ perm.menu.name }}</td>
+              <td>
+                <span class="badge
+                  {% if perm.action == 'CREATE' %}badge-success
+                  {% elif perm.action == 'READ'   %}badge-info
+                  {% elif perm.action == 'UPDATE' %}badge-warning
+                  {% else                         %}badge-danger{% endif %}">
+                  {{ perm.action }}
+                </span>
+              </td>
+              <td>
+                {% for role in perm.roles.all %}
+                  <span class="badge badge-secondary mr-1">{{ role.name }}</span>
+                {% empty %}
+                  <span class="text-muted">—</span>
+                {% endfor %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="text-center"><em>No permissions found.</em></td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

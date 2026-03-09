@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Role | Bounty Track{% endblock %}
+{% block pagename %}{{ action }} Role — Permission Matrix{% endblock %}
+
+{% block RightHeaderContent %}
+<div class="float-right">
+  <a href="{% url 'manage_roles' %}" class="btn btn-secondary btn-sm">
+    <i class="fas fa-arrow-left mr-1"></i> Back
+  </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="col-12">
+  <div class="card">
+    <div class="card-header">
+      <h5 class="mb-0">{{ action }} Role</h5>
+    </div>
+    <div class="card-body">
+      <form method="POST">
+        {% csrf_token %}
+        {% if not role %}
+        <div class="mb-3 col-md-4 pl-0">
+          <label class="form-label fw-bold">Role Name</label>
+          <input type="text" class="form-control" name="name" placeholder="e.g. Auditor" required>
+        </div>
+        {% else %}
+        <h5 class="mb-3">{{ role.name }}
+          {% if role.is_system %}<span class="badge badge-warning ml-2">System</span>{% endif %}
+        </h5>
+        {% endif %}
+
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary text-center">
+              <tr>
+                <th class="text-left">Menu</th>
+                {% for action_name in all_actions %}
+                  <th>{{ action_name }}</th>
+                {% endfor %}
+                <th>All</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for menu in menus %}
+              <tr>
+                <td>
+                  <i class="{{ menu.icon }} mr-1"></i>
+                  <strong>{{ menu.name }}</strong>
+                </td>
+                {% for action_name in all_actions %}
+                  <td class="text-center">
+                    {% for perm in menu.permissions.all %}
+                      {% if perm.action == action_name %}
+                        <input type="checkbox" name="permissions" value="{{ perm.id }}"
+                               class="form-check-input menu-cb-{{ menu.id }}"
+                               {% if perm.id in assigned %}checked{% endif %}>
+                      {% endif %}
+                    {% endfor %}
+                  </td>
+                {% endfor %}
+                <td class="text-center">
+                  <input type="checkbox" class="form-check-input select-all-row"
+                         data-menu="{{ menu.id }}"
+                         title="Toggle all for {{ menu.name }}">
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-2">
+          <i class="fas fa-save mr-1"></i> Save Role
+        </button>
+        <a href="{% url 'manage_roles' %}" class="btn btn-secondary mt-2 ml-2">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.select-all-row').forEach(function(cb) {
+    cb.addEventListener('change', function() {
+        var menuId = this.dataset.menu;
+        document.querySelectorAll('.menu-cb-' + menuId).forEach(function(c) {
+            c.checked = cb.checked;
+        });
+    });
+});
+</script>
+{% endblock %}

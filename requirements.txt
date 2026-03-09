@@ -14,3 +14,5 @@ sqlparse==0.5.3
 tablib==3.8.0
 typing_extensions==4.12.2
 whitenoise==6.9.0
+resend==2.23.0
+Pillow>=10.0.0weasyprint==68.1

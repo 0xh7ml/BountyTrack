@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Roles | Bounty Track{% endblock %}
+{% block pagename %}Role Management{% endblock %}
+
+{% block RightHeaderContent %}
+<div class="float-right">
+  <a href="{% url 'manage_roles.create' %}" class="btn btn-primary btn-sm">
+    <i class="fas fa-plus mr-1"></i> New Role
+  </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="col-12">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered text-nowrap">
+          <thead class="table-dark text-center">
+            <tr>
+              <th>#</th>
+              <th>Role Name</th>
+              <th>Permissions</th>
+              <th>System Role</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody class="text-center">
+            {% for role in roles %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td><strong>{{ role.name }}</strong></td>
+              <td>
+                <span class="badge badge-info">{{ role.permissions.count }} permissions</span>
+              </td>
+              <td>
+                {% if role.is_system %}
+                  <span class="badge badge-warning">System</span>
+                {% else %}
+                  <span class="badge badge-secondary">Custom</span>
+                {% endif %}
+              </td>
+              <td>{{ role.created_at|date:"d M Y" }}</td>
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <a href="{% url 'manage_roles.edit' role.id %}" class="btn btn-info">
+                    <i class="fa fa-pencil"></i>
+                  </a>
+                  {% if not role.is_system %}
+                  <button class="btn btn-danger"
+                          onclick="handleAction('{% url 'manage_roles.delete' role.id %}')">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center"><em>No roles found. Run <code>python manage.py seed_rbac</code>.</em></td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+{% block title %}{{ report.title }} | Bounty Track{% endblock %}
+
+{% block pagename %}Report Detail{% endblock %}
+
+{% block RightHeaderContent %}
+<div class="float-right">
+    <a href="{% url 'reports' %}" class="btn btn-secondary btn-sm">
+        <i class="fas fa-arrow-left mr-1"></i> Back to Reports
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="col-12">
+  <div class="row">
+
+    <!-- LEFT SIDEBAR: section navigation -->
+    <div class="col-md-2">
+      <div class="card sticky-top" style="top: 70px;">
+        <div class="card-body p-2">
+          <p class="text-muted text-xs text-uppercase font-weight-bold mb-2 pl-2">Sections</p>
+          <nav class="nav flex-column nav-pills">
+            <a class="nav-link py-1" href="#description">
+              <i class="fas fa-align-left mr-1"></i> Description
+            </a>
+            <a class="nav-link py-1" href="#steps">
+              <i class="fas fa-list-ol mr-1"></i> Steps to Reproduce
+            </a>
+            <a class="nav-link py-1" href="#impact">
+              <i class="fas fa-exclamation-triangle mr-1"></i> Impact
+            </a>
+            <a class="nav-link py-1" href="#remediation">
+              <i class="fas fa-tools mr-1"></i> Remediation
+            </a>
+            <a class="nav-link py-1" href="#comments">
+              <i class="fas fa-comments mr-1"></i> Comments
+              <span class="badge badge-secondary ml-1">{{ comments.count }}</span>
+            </a>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="col-md-7">
+
+      <!-- Title + badges bar -->
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+          <h4 class="mb-0 mr-2">{{ report.title }}</h4>
+          <div>
+            <span class="badge
+              {% if report.severity == 'Critical' %}badge-danger
+              {% elif report.severity == 'High' %}badge-warning
+              {% elif report.severity == 'Medium' %}badge-info
+              {% else %}badge-success{% endif %} mr-1">
+              {{ report.severity }}
+            </span>
+            <span class="badge
+              {% if report.status == 'Rewarded' %}badge-success
+              {% elif report.status == 'Triaged' %}badge-warning
+              {% elif report.status == 'Duplicate' %}badge-info
+              {% elif report.status == 'Closed' %}badge-danger
+              {% else %}badge-primary{% endif %}">
+              {{ report.status }}
+            </span>
+          </div>
+        </div>
+        <div class="card-body p-2">
+          <small class="text-muted">
+            <i class="fas fa-bug mr-1"></i> {{ report.vulnerability }}
+            &nbsp;|&nbsp;
+            <i class="fas fa-calendar mr-1"></i> Submitted {{ report.created_at|date:"d M Y" }}
+          </small>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="card" id="description">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="fas fa-align-left mr-2"></i>Description</h5>
+        </div>
+        <div class="card-body">
+          {% if report.description %}
+            {{ report.description|safe }}
+          {% else %}
+            <p class="text-muted"><em>No description provided.</em></p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Steps to Reproduce -->
+      <div class="card" id="steps">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="fas fa-list-ol mr-2"></i>Steps to Reproduce</h5>
+        </div>
+        <div class="card-body">
+          {% if report.steps_to_reproduce %}
+            {{ report.steps_to_reproduce|safe }}
+          {% else %}
+            <p class="text-muted"><em>No steps to reproduce provided.</em></p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Impact -->
+      <div class="card" id="impact">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="fas fa-exclamation-triangle mr-2"></i>Impact</h5>
+        </div>
+        <div class="card-body">
+          {% if report.impact %}
+            {{ report.impact|safe }}
+          {% else %}
+            <p class="text-muted"><em>No impact description provided.</em></p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Remediation -->
+      <div class="card" id="remediation">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="fas fa-tools mr-2"></i>Remediation / Fix</h5>
+        </div>
+        <div class="card-body">
+          {% if report.remediation %}
+            {{ report.remediation|safe }}
+          {% else %}
+            <p class="text-muted"><em>No remediation provided.</em></p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Comments -->
+      <div class="card" id="comments">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="fas fa-comments mr-2"></i>Comments</h5>
+          <span class="badge badge-secondary">{{ comments.count }}</span>
+        </div>
+        <div class="card-body">
+
+          {% for comment in comments %}
+          <div class="d-flex mb-3" id="comment-{{ comment.id }}">
+            <div class="mr-3">
+              <img src="https://api.dicebear.com/9.x/bottts-neutral/png?size=40&seed={{ comment.author.username }}"
+                   class="img-circle" width="40" height="40" alt="{{ comment.author.username }}">
+            </div>
+            <div class="flex-grow-1">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>{{ comment.author.username }}</strong>
+                  <small class="text-muted ml-2">{{ comment.created_at|date:"d M Y H:i" }}</small>
+                </div>
+                {% if comment.author == request.user %}
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-secondary btn-xs"
+                          onclick="editComment({{ comment.id }}, this)">
+                    <i class="fa fa-pencil"></i>
+                  </button>
+                  <button class="btn btn-outline-danger btn-xs"
+                          onclick="deleteComment({{ comment.id }}, '{% url 'comment-delete' comment.id %}')">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </div>
+                {% endif %}
+              </div>
+              <div class="comment-body mt-1" id="comment-body-{{ comment.id }}">
+                {{ comment.body|safe }}
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <p class="text-muted"><em>No comments yet. Be the first to comment!</em></p>
+          {% endfor %}
+
+          <!-- New comment form -->
+          {% if can_comment %}
+          <hr>
+          <form method="POST" id="comment-form">
+            {% csrf_token %}
+            {% include "misc/rich_editor.html" with field_name="body" label="Add a Comment" value="" %}
+            <button type="submit" class="btn btn-primary btn-sm">
+              <i class="fas fa-paper-plane mr-1"></i> Post Comment
+            </button>
+          </form>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR: metadata + participants -->
+    <div class="col-md-3">
+
+      <!-- Participants -->
+      <div class="card">
+        <div class="card-header"><h6 class="mb-0"><i class="fas fa-users mr-2"></i>Participants</h6></div>
+        <div class="card-body p-3">
+          <div class="d-flex align-items-center mb-2">
+            <span class="text-muted mr-2" style="min-width:90px;"><strong>Reporter:</strong></span>
+            {% if report.reporter %}
+              <img src="https://api.dicebear.com/9.x/bottts-neutral/png?size=24&seed={{ report.reporter.username }}"
+                   class="img-circle mr-1" width="24" height="24">
+              {{ report.reporter.username }}
+            {% else %}<span class="text-muted">—</span>{% endif %}
+          </div>
+          <div class="d-flex align-items-center mb-2">
+            <span class="text-muted mr-2" style="min-width:90px;"><strong>Coordinator:</strong></span>
+            {% if report.coordinator %}
+              <img src="https://api.dicebear.com/9.x/bottts-neutral/png?size=24&seed={{ report.coordinator.username }}"
+                   class="img-circle mr-1" width="24" height="24">
+              {{ report.coordinator.username }}
+            {% else %}<span class="text-muted">—</span>{% endif %}
+          </div>
+          <div class="d-flex align-items-center mb-2">
+            <span class="text-muted mr-2" style="min-width:90px;"><strong>Developer:</strong></span>
+            {% if report.developer %}
+              <img src="https://api.dicebear.com/9.x/bottts-neutral/png?size=24&seed={{ report.developer.username }}"
+                   class="img-circle mr-1" width="24" height="24">
+              {{ report.developer.username }}
+            {% else %}<span class="text-muted">—</span>{% endif %}
+          </div>
+          {% if report.collaborators.exists %}
+          <div class="mb-1">
+            <strong class="text-muted">Collaborators:</strong>
+            <div class="mt-1">
+              {% for u in report.collaborators.all %}
+                <span class="badge badge-secondary mr-1">{{ u.username }}</span>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Report Details -->
+      <div class="card mt-2">
+        <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle mr-2"></i>Details</h6></div>
+        <div class="card-body p-3">
+          <table class="table table-sm table-borderless mb-0">
+            <tr>
+              <td class="text-muted pl-0">Program</td>
+              <td><strong>{{ report.program.name }}</strong></td>
+            </tr>
+            <tr>
+              <td class="text-muted pl-0">Platform</td>
+              <td>{{ report.program.platform.name }}</td>
+            </tr>
+            <tr>
+              <td class="text-muted pl-0">Reward</td>
+              <td>
+                <span class="text-success font-weight-bold">{{ report.reward }}</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="text-muted pl-0">Submitted</td>
+              <td>{{ report.created_at|date:"d M Y" }}</td>
+            </tr>
+            <tr>
+              <td class="text-muted pl-0">Updated</td>
+              <td>{{ report.updated_at|date:"d M Y" }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Follow / Unfollow -->
+      <button class="btn {% if is_following %}btn-outline-danger{% else %}btn-outline-primary{% endif %} btn-block mt-2"
+              id="followBtn"
+              data-url="{% url 'program-follow' report.program.id %}"
+              data-following="{{ is_following|yesno:'true,false' }}">
+        <i class="fas {% if is_following %}fa-heart-broken{% else %}fa-heart{% endif %} mr-1" id="followIcon"></i>
+        <span id="followText">{% if is_following %}Unfollow{% else %}Follow{% endif %} Program</span>
+      </button>
+
+      <!-- Quick Edit -->
+      <div class="card mt-2">
+        <div class="card-header"><h6 class="mb-0"><i class="fas fa-edit mr-2"></i>Quick Edit</h6></div>
+        <div class="card-body p-3">
+          <a href="{% url 'report-edit' report.id %}" class="btn btn-info btn-block btn-sm mb-2">
+            <i class="fa fa-pencil mr-1"></i> Edit Report
+          </a>
+          <a href="{% url 'report-pdf' report.id %}" class="btn btn-dark btn-block btn-sm mb-2">
+            <i class="fa fa-file-pdf mr-1"></i> Download PDF
+          </a>
+          <button class="btn btn-danger btn-block btn-sm"
+                  onclick="handleAction('{% url 'report-delete' report.id %}')">
+            <i class="fa fa-trash mr-1"></i> Delete Report
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -10,11 +10,10 @@
 {% block RightHeaderContent %}
 <div class="float-right">
     <div class="btn-group mr-1 mb-2">
-        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add-report"> New Report </button>
+        <a href="{% url 'report-create' %}" class="btn btn-success btn-sm"> New Report </a>
         <button class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#import-report"> Import CSV </button>
     </div>
 </div>
-{% include "reports/report-add.html" %}
 {% include "reports/report-import.html" %}
 {% endblock RightHeaderContent %}
 
@@ -124,11 +123,16 @@
                                 <td>
                                     <div class="text-center">
                                         <div class="btn-group">
-                                            <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#edit-report-{{ report.id }}">
+                                            <a href="{% url 'report-detail' report.id %}" class="btn btn-secondary btn-sm" title="View">
+                                                <i class="fa fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'report-pdf' report.id %}" class="btn btn-dark btn-sm" title="Download PDF">
+                                                <i class="fa fa-file-pdf"></i>
+                                            </a>
+                                            <a href="{% url 'report-edit' report.id %}" class="btn btn-info btn-sm" title="Edit">
                                                 <i class="fa fa-pencil"></i>
-                                            </button>
-                                            {% include "reports/report-edit.html" %}
-                                            <button type="button" class="btn btn-danger btn-sm" onclick="handleAction('{% url 'report-delete' report.id %}')">
+                                            </a>
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="handleAction('{% url 'report-delete' report.id %}')" title="Delete">
                                                 <i class="fa fa-trash"></i>
                                             </button>
                                         </div>

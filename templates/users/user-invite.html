@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Invite User | Bounty Track{% endblock %}
+{% block pagename %}Invite User{% endblock %}
+
+{% block RightHeaderContent %}
+<div class="float-right">
+  <a href="{% url 'users' %}" class="btn btn-secondary btn-sm">
+    <i class="fas fa-arrow-left mr-1"></i> Back
+  </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="col-md-6 offset-md-3">
+
+  {% if accept_url %}
+  <div class="card border-warning mb-3">
+    <div class="card-header bg-warning text-dark">
+      <i class="fas fa-exclamation-triangle mr-2"></i>
+      <strong>Invitation created — email delivery failed</strong>
+    </div>
+    <div class="card-body">
+      <p class="mb-1">The invitation for <strong>{{ invite_email }}</strong> was saved, but the email could not be sent:</p>
+      <p class="text-danger small mb-3"><code>{{ email_error }}</code></p>
+      <p class="mb-2"><strong>Share this link manually:</strong></p>
+      <div class="input-group">
+        <input type="text" class="form-control" id="inviteLink" value="{{ accept_url }}" readonly>
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary" type="button" onclick="copyInviteLink()">
+            <i class="fas fa-copy"></i> Copy
+          </button>
+        </div>
+      </div>
+      <a href="{% url 'users' %}" class="btn btn-secondary btn-sm mt-3">
+        <i class="fas fa-arrow-left mr-1"></i> Back to Users
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="card">
+    <div class="card-header"><h5 class="mb-0">Invite a User</h5></div>
+    <div class="card-body">
+      <p class="text-muted">An invitation email will be sent to the provided address with a link to register.</p>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-control" name="email" placeholder="user@example.com" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Role</label>
+          <select class="form-select form-control" name="role">
+            <option value="">-- No Role --</option>
+            {% for role in roles %}
+              <option value="{{ role.id }}">{{ role.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-success">
+          <i class="fas fa-paper-plane mr-1"></i> Send Invitation
+        </button>
+        <a href="{% url 'users' %}" class="btn btn-secondary ml-2">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+function copyInviteLink() {
+  var el = document.getElementById('inviteLink');
+  el.select();
+  document.execCommand('copy');
+  Swal.fire({ icon: 'success', title: 'Copied!', timer: 1500, showConfirmButton: false, toast: true, position: 'top-end' });
+}
+</script>
+{% endblock extra_js %}
+{% endblock content %}

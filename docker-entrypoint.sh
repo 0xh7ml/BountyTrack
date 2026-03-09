@@ -9,6 +9,9 @@ python manage.py makemigrations backend
 
 python manage.py migrate
 
+# Seed RBAC data (menus, permissions, roles)
+python manage.py seed_rbac
+
 # Create superuser if not exists
 python manage.py shell << END
 from django.contrib.auth import get_user_model

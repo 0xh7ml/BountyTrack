@@ -1,38 +1,59 @@
 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-    <!-- Add icons to the links using the .nav-icon class
-         with font-awesome or any other icon font library -->
+  {% if sidebar_menus %}
+    {% for menu in sidebar_menus %}
+      {% if menu.menu_set.exists %}
+        <li class="nav-item has-treeview mb-2">
+          <a href="#" class="nav-link">
+            <i class="nav-icon {{ menu.icon }}"></i>
+            <p>
+              {{ menu.name }}
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            {% for child in menu.menu_set.all %}
+              <li class="nav-item">
+                <a href="{% url child.url_name %}" class="nav-link {% if request.resolver_match.url_name == child.url_name %}active{% endif %}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>{{ child.name }}</p>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
+      {% else %}
+        <li class="nav-item">
+          <a href="{% url menu.url_name %}" class="nav-link {% if request.resolver_match.url_name == menu.url_name %}active{% endif %}">
+            <i class="nav-icon {{ menu.icon }}"></i>
+            <p>{{ menu.name }}</p>
+          </a>
+        </li>
+      {% endif %}
+    {% endfor %}
+  {% else %}
+    {# Fallback static menu when RBAC is not seeded yet #}
     <li class="nav-item">
-      <a href="{% url "home" %}" class="nav-link">
+      <a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
         <i class="nav-icon fas fa-tachometer-alt"></i>
-        <p>
-          Dashboard
-        </p>
+        <p>Dashboard</p>
       </a>
     </li>
     <li class="nav-item">
-      <a href="{% url "reports" %} " class="nav-link">
+      <a href="{% url 'reports' %}" class="nav-link {% if request.resolver_match.url_name == 'reports' %}active{% endif %}">
         <i class="nav-icon fa-solid fa-bug"></i>
-        <p>
-          Bug Reports
-        </p>
+        <p>Bug Reports</p>
       </a>
     </li>
     <li class="nav-item has-treeview mb-2">
       <a href="#" class="nav-link">
         <i class="nav-icon fa-solid fa-chart-line"></i>
-        <p>
-          Analytics
-          <i class="right fas fa-angle-left"></i>
-        </p>
+        <p>Analytics <i class="right fas fa-angle-left"></i></p>
       </a>
       <ul class="nav nav-treeview">
-        <!-- Setup Link -->
         <li class="nav-item">
-          <a href="{% url "analytics.program" %}" class="nav-link">
+          <a href="{% url 'analytics.program' %}" class="nav-link {% if request.resolver_match.url_name == 'analytics.program' %}active{% endif %}">
             <i class="far fa-circle nav-icon"></i>
-            <p>
-              Program Wise
-            </p>
+            <p>Program Wise</p>
           </a>
         </li>
       </ul>
@@ -40,29 +61,54 @@
     <li class="nav-item has-treeview mb-2">
       <a href="#" class="nav-link">
         <i class="nav-icon fa-solid fa-gear"></i>
-        <p>
-          Setup
-          <i class="right fas fa-angle-left"></i>
-        </p>
+        <p>Setup <i class="right fas fa-angle-left"></i></p>
       </a>
       <ul class="nav nav-treeview">
-        <!-- Setup Link -->
         <li class="nav-item">
-          <a href="{% url "programs" %}" class="nav-link">
+          <a href="{% url 'programs' %}" class="nav-link {% if request.resolver_match.url_name == 'programs' %}active{% endif %}">
             <i class="far fa-circle nav-icon"></i>
-            <p>
-              Program
-            </p>
+            <p>Program</p>
           </a>
         </li>
         <li class="nav-item">
-          <a href="{% url "platforms" %} " class="nav-link">
+          <a href="{% url 'platforms' %}" class="nav-link {% if request.resolver_match.url_name == 'platforms' %}active{% endif %}">
             <i class="far fa-circle nav-icon"></i>
-            <p>
-              Platform
-            </p>
+            <p>Platform</p>
           </a>
         </li>
       </ul>
     </li>
-  </ul>
+    <li class="nav-item has-treeview mb-2">
+      <a href="#" class="nav-link">
+        <i class="nav-icon fa-solid fa-users-gear"></i>
+        <p>Admin <i class="right fas fa-angle-left"></i></p>
+      </a>
+      <ul class="nav nav-treeview">
+        <li class="nav-item">
+          <a href="{% url 'users' %}" class="nav-link {% if request.resolver_match.url_name == 'users' %}active{% endif %}">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Users</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'manage_roles' %}" class="nav-link {% if request.resolver_match.url_name == 'manage_roles' %}active{% endif %}">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Roles</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'manage_menus' %}" class="nav-link {% if request.resolver_match.url_name == 'manage_menus' %}active{% endif %}">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Menus</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'manage_permissions' %}" class="nav-link {% if request.resolver_match.url_name == 'manage_permissions' %}active{% endif %}">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Permissions</p>
+          </a>
+        </li>
+      </ul>
+    </li>
+  {% endif %}
+</ul>

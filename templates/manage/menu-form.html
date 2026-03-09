@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Menu | Bounty Track{% endblock %}
+{% block pagename %}{{ action }} Menu{% endblock %}
+
+{% block RightHeaderContent %}
+<div class="float-right">
+  <a href="{% url 'manage_menus' %}" class="btn btn-secondary btn-sm">
+    <i class="fas fa-arrow-left mr-1"></i> Back
+  </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="col-md-6 offset-md-3">
+  <div class="card">
+    <div class="card-header"><h5 class="mb-0">{{ action }} Menu</h5></div>
+    <div class="card-body">
+      <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Name</label>
+          <input type="text" class="form-control" name="name" value="{{ menu.name|default:'' }}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">URL Name</label>
+          <input type="text" class="form-control" name="url_name" value="{{ menu.url_name|default:'' }}"
+                 placeholder="e.g. reports" required>
+          <small class="text-muted">Must match a registered Django URL name.</small>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Icon (FontAwesome class)</label>
+          <input type="text" class="form-control" name="icon" value="{{ menu.icon|default:'' }}"
+                 placeholder="e.g. fas fa-bug">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Parent Menu</label>
+          <select class="form-control" name="parent">
+            <option value="">-- No Parent (top-level) --</option>
+            {% for pm in parent_menus %}
+              <option value="{{ pm.id }}"
+                {% if menu.parent_id == pm.id %}selected{% endif %}>
+                {{ pm.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Order</label>
+          <input type="number" class="form-control" name="order" value="{{ menu.order|default:0 }}" min="0">
+        </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" name="is_active" id="is_active"
+                 {% if menu.is_active|default:True %}checked{% endif %}>
+          <label class="form-check-label" for="is_active">Active</label>
+        </div>
+        <button type="submit" class="btn btn-primary">{{ action }} Menu</button>
+        <a href="{% url 'manage_menus' %}" class="btn btn-secondary ml-2">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

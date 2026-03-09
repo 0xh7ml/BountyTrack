@@ -1,0 +1,6 @@
+{# Usage: {% include "misc/rich_editor.html" with field_name="description" label="Description" value=report.description %} #}
+{# NOTE: Also add {% block extra_js %}{% include "misc/rich_editor_js.html" %}{% endblock %} or use the auto-init below #}
+<div class="mb-3">
+    <label class="form-label fw-semibold">{{ label }}</label>
+    <textarea name="{{ field_name }}" id="editor-{{ field_name }}" class="summernote-editor">{{ value|default:''|safe }}</textarea>
+</div>

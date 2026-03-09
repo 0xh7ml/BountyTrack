@@ -6,10 +6,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .resources import ProgramResource, ReportResource
 from tablib import Dataset
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
+from django.template.loader import render_to_string
+from .decorators import permission_required
 
 # Call the models
-from .models import Program, Platform, Report
+from .models import Program, Platform, Report, ReportComment, UploadedImage, ProgramFollower
 
 # Create your views here.
 def CustomLoginView(request):
@@ -85,11 +87,25 @@ def home(request):
 @login_required()
 def ReportView(request):
     if request.method == "GET":
+        user = request.user
         daterange = request.GET.get('daterange', '')
-        severity = request.GET.get('severity', '')
-        status = request.GET.get('status', '')
-        program = request.GET.get('program', '')
-        platform = request.GET.get('platform', '')
+        severity  = request.GET.get('severity', '')
+        status    = request.GET.get('status', '')
+        program   = request.GET.get('program', '')
+        platform  = request.GET.get('platform', '')
+
+        # Role-based report filtering
+        if user.is_superuser or (hasattr(user, 'profile') and user.profile.role and user.profile.role.name == 'SuperAdmin'):
+            reports = Report.objects.all()
+        elif hasattr(user, 'profile') and user.profile.role and user.profile.role.name == 'Reporter':
+            reports = Report.objects.filter(
+                Q(reporter=user) | Q(collaborators=user)
+            ).distinct()
+        elif hasattr(user, 'profile') and user.profile.role and user.profile.role.name == 'ProjectOwner':
+            followed_programs = user.followed_programs.values_list('program_id', flat=True)
+            reports = Report.objects.filter(program_id__in=followed_programs)
+        else:
+            reports = Report.objects.all()
 
         # Initialize the filters as an empty Q object
         filters = Q()
@@ -110,7 +126,7 @@ def ReportView(request):
             filters &= Q(created_at__range=[start_date, end_date])
 
         # Filter the reports based on the applied filters
-        reports = Report.objects.filter(filters).order_by('-updated_at')  # Updated order first
+        reports = reports.filter(filters).order_by('-updated_at')
 
         # Get the lists of severities, statuses, programs, and platforms for the dropdowns
         severities = (
@@ -126,32 +142,46 @@ def ReportView(request):
             ('Duplicate', 'Duplicate'),
             ('Closed', 'Closed'),
         )
-        programs = Program.objects.all()
+        programs  = Program.objects.all()
         platforms = Platform.objects.all()
         
-        paginator = Paginator(reports, 10)  # 10 devices per page
+        paginator   = Paginator(reports, 10)
         page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
+        page_obj    = paginator.get_page(page_number)
 
         return render(request, 'reports/reports.html', {
-            'reports': page_obj,
+            'reports':    page_obj,
             'severities': severities,
-            'statuses': statuses,
-            'programs': programs,
-            'platforms': platforms,
+            'statuses':   statuses,
+            'programs':   programs,
+            'platforms':  platforms,
         })
 
 @login_required()
 def ReportCreate(request):
+    if request.method == "GET":
+        programs = Program.objects.all()
+        return render(request, 'reports/report-add.html', {'programs': programs})
+
     if request.method == "POST":
-        title = request.POST.get('title')
+        title         = request.POST.get('title')
         vulnerability = request.POST.get('vulnerability')
-        severity = request.POST.get('severity')
-        status = request.POST.get('status')
-        program = request.POST.get('program')
-        reward = request.POST.get('reward')
-        
-        report = Report(title=title, vulnerability=vulnerability, severity=severity, status=status, program_id=program, reward=reward)
+        severity      = request.POST.get('severity')
+        status        = request.POST.get('status')
+        program       = request.POST.get('program')
+        reward        = request.POST.get('reward')
+        description        = request.POST.get('description', '')
+        steps_to_reproduce = request.POST.get('steps_to_reproduce', '')
+        impact             = request.POST.get('impact', '')
+        remediation        = request.POST.get('remediation', '')
+
+        report = Report(
+            title=title, vulnerability=vulnerability, severity=severity,
+            status=status, program_id=program, reward=reward,
+            description=description, steps_to_reproduce=steps_to_reproduce,
+            impact=impact, remediation=remediation,
+            reporter=request.user,
+        )
         report.save()
 
         messages.success(request, "Report created successfully.")
@@ -161,16 +191,24 @@ def ReportCreate(request):
 
 @login_required()
 def ReportEdit(request, id):
+    report = get_object_or_404(Report, pk=id)
+
+    if request.method == "GET":
+        programs = Program.objects.all()
+        return render(request, 'reports/report-edit.html', {'report': report, 'programs': programs})
+
     if request.method == "POST":
-        report = get_object_or_404(Report, pk=id)
-        
         if report:
-            report.title = request.POST.get('title')
+            report.title         = request.POST.get('title')
             report.vulnerability = request.POST.get('vulnerability')
-            report.severity = request.POST.get('severity')
-            report.status = request.POST.get('status')
-            report.program_id = request.POST.get('program')
-            report.reward = request.POST.get('reward')
+            report.severity      = request.POST.get('severity')
+            report.status        = request.POST.get('status')
+            report.program_id    = request.POST.get('program')
+            report.reward        = request.POST.get('reward')
+            report.description        = request.POST.get('description', report.description)
+            report.steps_to_reproduce = request.POST.get('steps_to_reproduce', report.steps_to_reproduce)
+            report.impact             = request.POST.get('impact', report.impact)
+            report.remediation        = request.POST.get('remediation', report.remediation)
             report.save()
 
             messages.success(request, "Report updated successfully.")
@@ -407,3 +445,88 @@ def ImportReport(request):
     
     # Redirect to the reports page after the process
     return redirect('reports')
+
+# ─── Image Upload ────────────────────────────────────────────────────────────
+
+@login_required
+def UploadImage(request):
+    """AJAX endpoint for pasting/uploading images in the rich text editor."""
+    if request.method == 'POST' and request.FILES.get('image'):
+        img = UploadedImage(image=request.FILES['image'], uploaded_by=request.user)
+        img.save()
+        return JsonResponse({'url': img.image.url})
+    return JsonResponse({'error': 'No image provided'}, status=400)
+
+
+# ─── Report Detail ───────────────────────────────────────────────────────────
+
+@login_required
+def ReportDetail(request, id):
+    report   = get_object_or_404(Report, pk=id)
+    comments = report.comments.select_related('author').all()
+    programs = Program.objects.all()
+    is_following = ProgramFollower.objects.filter(program=report.program, user=request.user).exists()
+
+    if request.method == 'POST':
+        body = request.POST.get('body', '').strip()
+        if body:
+            ReportComment.objects.create(report=report, author=request.user, body=body)
+            messages.success(request, 'Comment added.')
+        return redirect('report-detail', id=id)
+
+    return render(request, 'reports/report-detail.html', {
+        'report':       report,
+        'comments':     comments,
+        'programs':     programs,
+        'is_following': is_following,
+        'can_comment':  True,
+    })
+
+
+# ─── Program Follow/Unfollow ─────────────────────────────────────────────────
+
+@login_required
+def ProgramFollow(request, id):
+    program = get_object_or_404(Program, pk=id)
+    obj, created = ProgramFollower.objects.get_or_create(program=program, user=request.user)
+    if not created:
+        obj.delete()
+        return JsonResponse({'status': 'unfollowed'})
+    return JsonResponse({'status': 'followed'})
+
+
+# ─── Comment Edit & Delete ───────────────────────────────────────────────────
+
+@login_required
+def CommentEdit(request, id):
+    comment = get_object_or_404(ReportComment, pk=id, author=request.user)
+    if request.method == 'POST':
+        body = request.POST.get('body', '').strip()
+        if body:
+            comment.body = body
+            comment.save()
+        return JsonResponse({'status': 'updated', 'body': comment.body})
+    return JsonResponse({'error': 'Invalid'}, status=400)
+
+
+@login_required
+def CommentDelete(request, id):
+    comment = get_object_or_404(ReportComment, pk=id, author=request.user)
+    if request.method == 'POST':
+        comment.delete()
+        return JsonResponse({'status': 'deleted'})
+    return JsonResponse({'error': 'Invalid'}, status=400)
+
+
+# ─── Report PDF Export ───────────────────────────────────────────────────────
+
+@login_required
+def ReportExportPDF(request, id):
+    from weasyprint import HTML
+    report = get_object_or_404(Report, pk=id)
+    html_string = render_to_string('reports/report-pdf.html', {'report': report})
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf()
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    safe_title = report.title.replace(' ', '_')[:50]
+    response['Content-Disposition'] = f'attachment; filename="report_{report.id}_{safe_title}.pdf"'
+    return response

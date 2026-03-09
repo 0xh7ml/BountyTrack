@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Users | Bounty Track{% endblock %}
+{% block pagename %}User Management{% endblock %}
+
+{% block RightHeaderContent %}
+<div class="float-right">
+  <a href="{% url 'user-invite' %}" class="btn btn-success btn-sm mr-1">
+    <i class="fas fa-envelope mr-1"></i> Invite User
+  </a>
+  <a href="{% url 'user-create' %}" class="btn btn-primary btn-sm">
+    <i class="fas fa-user-plus mr-1"></i> New User
+  </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="col-12">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered text-nowrap">
+          <thead class="table-dark text-center">
+            <tr>
+              <th>#</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Joined</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody class="text-center">
+            {% for u in users %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>
+                <div class="d-flex align-items-center justify-content-center">
+                  <img src="https://api.dicebear.com/9.x/bottts-neutral/png?size=28&seed={{ u.username }}"
+                       class="img-circle mr-2" width="28" height="28">
+                  {{ u.username }}
+                  {% if u.is_superuser %}<span class="badge badge-danger ml-1">Super</span>{% endif %}
+                </div>
+              </td>
+              <td>{{ u.email|default:"—" }}</td>
+              <td>
+                {% if u.profile.role %}
+                  <span class="badge badge-info">{{ u.profile.role.name }}</span>
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if u.is_active %}
+                  <span class="badge badge-success">Active</span>
+                {% else %}
+                  <span class="badge badge-danger">Inactive</span>
+                {% endif %}
+              </td>
+              <td>{{ u.date_joined|date:"d M Y" }}</td>
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <a href="{% url 'user-edit' u.id %}" class="btn btn-info">
+                    <i class="fa fa-pencil"></i>
+                  </a>
+                  {% if not u.is_superuser %}
+                  <button class="btn btn-danger"
+                          onclick="handleAction('{% url 'user-delete' u.id %}')">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="text-center"><em>No users found.</em></td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
